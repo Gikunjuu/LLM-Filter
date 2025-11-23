@@ -3,10 +3,10 @@
 {% block title %}Dashboard - Compliance Filter{% endblock %}
 
 {% block extra_css %}
-<!-- Chart.js -->
-<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-
-<style>
+    <!-- Chart.js -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    
+    <style>
     .page-header {
         margin-bottom: 32px;
     }
@@ -105,10 +105,10 @@
         letter-spacing: -0.5px;
     }
     
-    .chart-area {
-        height: 300px;
-        position: relative;
-    }
+        .chart-area {
+            height: 300px;
+            position: relative;
+        }
     
     .status-badge {
         display: inline-flex;
@@ -300,7 +300,91 @@
         margin-bottom: 16px;
         opacity: 0.5;
     }
-</style>
+    
+    /* Dark Mode Styles */
+    [data-theme="dark"] .page-title {
+        color: #F2F2F7;
+    }
+    
+    [data-theme="dark"] .page-subtitle {
+        color: #8E8E93;
+    }
+    
+    [data-theme="dark"] .stat-value {
+        color: #F2F2F7;
+    }
+    
+    [data-theme="dark"] .stat-label {
+        color: #8E8E93;
+    }
+    
+    [data-theme="dark"] .chart-container {
+        background: rgba(28, 28, 30, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    [data-theme="dark"] .chart-title {
+        color: #F2F2F7;
+    }
+    
+    [data-theme="dark"] .test-interface {
+        background: rgba(28, 28, 30, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    [data-theme="dark"] .test-textarea {
+        background: #2C2C2E;
+        border-color: rgba(255, 255, 255, 0.15);
+        color: #F2F2F7;
+    }
+    
+    [data-theme="dark"] .test-textarea:focus {
+        border-color: var(--primary);
+        box-shadow: 0 0 0 4px rgba(0, 122, 255, 0.25);
+    }
+    
+    [data-theme="dark"] .results-panel.safe {
+        background: rgba(52, 199, 89, 0.15);
+        border-color: rgba(52, 199, 89, 0.3);
+    }
+    
+    [data-theme="dark"] .results-panel.violation {
+        background: rgba(255, 59, 48, 0.15);
+        border-color: rgba(255, 59, 48, 0.3);
+    }
+    
+    [data-theme="dark"] .activity-table {
+        background: rgba(28, 28, 30, 0.9);
+        border: 1px solid rgba(255, 255, 255, 0.12);
+    }
+    
+    [data-theme="dark"] .table-title {
+        color: #F2F2F7;
+    }
+    
+    [data-theme="dark"] .innovation-item {
+        background: #2C2C2E;
+        border-color: rgba(255, 255, 255, 0.1);
+    }
+    
+    [data-theme="dark"] .innovation-item:hover {
+        background: #3A3A3C;
+    }
+    
+    [data-theme="dark"] .innovation-name {
+        color: #C7C7CC;
+    }
+    
+    [data-theme="dark"] .status-badge.operational {
+        background: rgba(52, 199, 89, 0.2);
+        color: #30D158;
+    }
+    
+    [data-theme="dark"] .status-badge.offline {
+        background: rgba(255, 59, 48, 0.2);
+        color: #FF453A;
+        }
+    </style>
 {% endblock %}
 
 {% block content %}
@@ -315,21 +399,21 @@
             <span class="status-badge {% if system_status %}operational{% else %}offline{% endif %}" id="system-status">
                 <i class="bi bi-{% if system_status %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
                 {% if system_status %}OPERATIONAL{% else %}OFFLINE{% endif %}
-            </span>
+                    </span>
             <span style="font-size: 13px; color: var(--gray-500);">Last Updated: <span id="last-updated">--:--:--</span></span>
         </div>
     </div>
-</div>
-
+                </div>
+                
 <!-- Stats Grid -->
 <div class="stats-grid">
     <div class="stat-card primary">
         <div class="stat-icon primary">
             <i class="bi bi-file-text"></i>
-        </div>
+                </div>
         <div class="stat-label">Total Processed</div>
         <div class="stat-value" id="total-processed">{{ metrics.total_processed }}</div>
-    </div>
+            </div>
     
     <div class="stat-card danger">
         <div class="stat-icon danger">
@@ -345,16 +429,16 @@
         </div>
         <div class="stat-label">Accuracy Rate</div>
         <div class="stat-value" id="accuracy-rate">{{ "%.1f"|format(metrics.accuracy_rate) }}%</div>
-    </div>
+                    </div>
     
     <div class="stat-card info">
         <div class="stat-icon info">
             <i class="bi bi-clock"></i>
-        </div>
+                        </div>
         <div class="stat-label">System Uptime</div>
         <div class="stat-value" id="system-uptime">Online</div>
-    </div>
-</div>
+                    </div>
+                </div>
 
 <!-- Charts and Innovation Status -->
 <div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin-bottom: 32px;">
@@ -370,9 +454,9 @@
         </div>
         <div class="chart-area">
             <canvas id="threatChart"></canvas>
-        </div>
-    </div>
-    
+                </div>
+            </div>
+
     <!-- Innovation Systems Status -->
     <div class="premium-card">
         <h3 class="chart-title" style="margin-bottom: 24px;">Innovation Systems</h3>
@@ -412,43 +496,43 @@
                 </div>
                 <span class="innovation-status active">Active</span>
             </div>
+                </div>
+            </div>
         </div>
-    </div>
-</div>
 
-<!-- Test Interface -->
+        <!-- Test Interface -->
 <div class="test-interface">
     <h3 class="chart-title" style="margin-bottom: 24px;">Content Analysis Test</h3>
-    <form id="analysis-form">
+                        <form id="analysis-form">
         <div class="test-form">
             <div>
                 <textarea class="test-textarea" id="test-content" rows="3" placeholder="Enter content to analyze for compliance violations..."></textarea>
-            </div>
+                                    </div>
             <div style="display: flex; flex-direction: column; gap: 12px;">
                 <input type="text" class="form-control-premium" id="user-id" placeholder="User ID (optional)" style="width: 200px;">
                 <button type="submit" class="btn-premium btn-premium-primary" style="width: 200px;">
                     <i class="bi bi-search"></i>
                     Analyze Content
-                </button>
-            </div>
-        </div>
-    </form>
-    
-    <!-- Analysis Results -->
+                                    </button>
+                                </div>
+                            </div>
+                        </form>
+                        
+                        <!-- Analysis Results -->
     <div id="analysis-results" class="results-panel">
         <h4 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Analysis Results</h4>
-        <div id="results-content"></div>
-    </div>
-</div>
+                                <div id="results-content"></div>
+            </div>
+        </div>
 
-<!-- Recent Activity -->
+        <!-- Recent Activity -->
 <div class="activity-table">
     <div class="table-header">
         <h3 class="table-title">Recent Activity</h3>
         <a href="/monitoring" class="btn-premium" style="padding: 8px 16px; font-size: 13px; text-decoration: none;">
             View All <i class="bi bi-arrow-right"></i>
-        </a>
-    </div>
+                        </a>
+                    </div>
     <table>
         <thead>
             <tr>
@@ -457,60 +541,60 @@
                 <th>Content Preview</th>
                 <th>Status</th>
                 <th>Processing Time</th>
-            </tr>
-        </thead>
-        <tbody id="recent-activity">
-            <tr>
+                                    </tr>
+                                </thead>
+                                <tbody id="recent-activity">
+                                    <tr>
                 <td colspan="5" class="empty-state">
                     <i class="bi bi-inbox"></i>
-                    <div>No recent activity</div>
-                </td>
-            </tr>
-        </tbody>
-    </table>
-</div>
+                                            <div>No recent activity</div>
+                                        </td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
 {% endblock %}
 
 {% block scripts %}
-<script>
-    // Initialize Socket.IO
-    const socket = io();
-    
-    // Chart configuration
-    let threatChart;
-    
-    // Initialize chart
-    function initializeChart() {
-        const ctx = document.getElementById('threatChart').getContext('2d');
-        threatChart = new Chart(ctx, {
-            type: 'line',
-            data: {
-                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
-                datasets: [{
-                    label: 'Threats Detected',
-                    data: [0, 2, 1, 5, 3, 1],
+    <script>
+        // Initialize Socket.IO
+        const socket = io();
+        
+        // Chart configuration
+        let threatChart;
+        
+        // Initialize chart
+        function initializeChart() {
+            const ctx = document.getElementById('threatChart').getContext('2d');
+            threatChart = new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                    datasets: [{
+                        label: 'Threats Detected',
+                        data: [0, 2, 1, 5, 3, 1],
                     borderColor: 'rgb(255, 59, 48)',
                     backgroundColor: 'rgba(255, 59, 48, 0.1)',
-                    borderWidth: 3,
-                    fill: true,
+                        borderWidth: 3,
+                        fill: true,
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
-                }, {
-                    label: 'Total Processed',
-                    data: [10, 25, 15, 40, 30, 20],
+                    }, {
+                        label: 'Total Processed',
+                        data: [10, 25, 15, 40, 30, 20],
                     borderColor: 'rgb(0, 122, 255)',
                     backgroundColor: 'rgba(0, 122, 255, 0.1)',
-                    borderWidth: 3,
-                    fill: false,
+                        borderWidth: 3,
+                        fill: false,
                     tension: 0.4,
                     pointRadius: 4,
                     pointHoverRadius: 6
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    maintainAspectRatio: false,
                 plugins: {
                     legend: {
                         display: true,
@@ -526,11 +610,11 @@
                         }
                     }
                 },
-                scales: {
-                    y: {
-                        beginAtZero: true,
-                        grid: {
-                            color: 'rgba(0, 0, 0, 0.05)'
+                    scales: {
+                        y: {
+                            beginAtZero: true,
+                            grid: {
+                                color: 'rgba(0, 0, 0, 0.05)'
                         },
                         ticks: {
                             font: {
@@ -549,73 +633,73 @@
                                 size: 12
                             }
                         }
+                        }
                     }
                 }
-            }
-        });
-    }
-    
-    // Update metrics display
-    function updateMetrics(metrics) {
-        document.getElementById('total-processed').textContent = metrics.total_processed;
-        document.getElementById('threats-detected').textContent = metrics.threats_detected;
-        document.getElementById('accuracy-rate').textContent = (metrics.accuracy_rate || 98.5).toFixed(1) + '%';
-        document.getElementById('system-uptime').textContent = (metrics.uptime_hours || 0).toFixed(1) + 'h';
-        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
-    }
-    
-    // Handle form submission
-    document.getElementById('analysis-form').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        
-        const content = document.getElementById('test-content').value.trim();
-        const userId = document.getElementById('user-id').value.trim() || 'test_user';
-        
-        if (!content) {
-            alert('Please enter content to analyze');
-            return;
+            });
         }
         
-        try {
-            const response = await fetch('/api/analyze', {
-                method: 'POST',
-                headers: {
-                    'Content-Type': 'application/json'
-                },
-                body: JSON.stringify({
-                    content: content,
-                    user_id: userId,
-                    context: {}
-                })
-            });
+        // Update metrics display
+        function updateMetrics(metrics) {
+            document.getElementById('total-processed').textContent = metrics.total_processed;
+            document.getElementById('threats-detected').textContent = metrics.threats_detected;
+            document.getElementById('accuracy-rate').textContent = (metrics.accuracy_rate || 98.5).toFixed(1) + '%';
+            document.getElementById('system-uptime').textContent = (metrics.uptime_hours || 0).toFixed(1) + 'h';
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        }
+        
+        // Handle form submission
+        document.getElementById('analysis-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
             
-            const result = await response.json();
+            const content = document.getElementById('test-content').value.trim();
+            const userId = document.getElementById('user-id').value.trim() || 'test_user';
             
-            // Display results
-            const resultsDiv = document.getElementById('analysis-results');
-            const resultsContent = document.getElementById('results-content');
-            
-            let statusBadge = '';
-            let panelClass = 'safe';
-            
-            if (result.status === 'SAFE') {
-                statusBadge = '<span class="status-badge operational"><i class="bi bi-check-circle"></i>SAFE</span>';
-                panelClass = 'safe';
-            } else if (result.status === 'VIOLATION') {
-                statusBadge = '<span class="status-badge offline"><i class="bi bi-exclamation-triangle"></i>VIOLATION</span>';
-                panelClass = 'violation';
-            } else {
-                statusBadge = '<span class="status-badge" style="background: rgba(255, 149, 0, 0.1); color: var(--warning);"><i class="bi bi-question-circle"></i>ERROR</span>';
-                panelClass = 'safe';
+            if (!content) {
+                alert('Please enter content to analyze');
+                return;
             }
             
-            resultsContent.innerHTML = `
+            try {
+                const response = await fetch('/api/analyze', {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({
+                        content: content,
+                        user_id: userId,
+                        context: {}
+                    })
+                });
+                
+                const result = await response.json();
+                
+                // Display results
+                const resultsDiv = document.getElementById('analysis-results');
+                const resultsContent = document.getElementById('results-content');
+                
+                let statusBadge = '';
+            let panelClass = 'safe';
+                
+                if (result.status === 'SAFE') {
+                statusBadge = '<span class="status-badge operational"><i class="bi bi-check-circle"></i>SAFE</span>';
+                panelClass = 'safe';
+                } else if (result.status === 'VIOLATION') {
+                statusBadge = '<span class="status-badge offline"><i class="bi bi-exclamation-triangle"></i>VIOLATION</span>';
+                panelClass = 'violation';
+                } else {
+                statusBadge = '<span class="status-badge" style="background: rgba(255, 149, 0, 0.1); color: var(--warning);"><i class="bi bi-question-circle"></i>ERROR</span>';
+                panelClass = 'safe';
+                }
+                
+                resultsContent.innerHTML = `
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 16px;">
                     <div>
                         <div style="margin-bottom: 12px;"><strong>Status:</strong> ${statusBadge}</div>
                         <div style="margin-bottom: 12px;"><strong>Confidence:</strong> <span style="padding: 4px 12px; background: var(--gray-100); border-radius: var(--radius-full); font-size: 12px; font-weight: 600;">${((result.confidence || 0) * 100).toFixed(1)}%</span></div>
                         <div><strong>Threat Level:</strong> <span style="text-transform: uppercase; font-weight: 600;">${result.threat_level || 'N/A'}</span></div>
-                    </div>
+                        </div>
                     <div>
                         <div style="margin-bottom: 12px;"><strong>Processing Time:</strong> ${(result.processing_time_ms || 0).toFixed(1)}ms</div>
                         <div style="margin-bottom: 12px;"><strong>Innovations Used:</strong> ${result.innovations_used?.length || 0}</div>
@@ -626,69 +710,69 @@
             `;
             
             resultsDiv.className = `results-panel show ${panelClass}`;
+                
+            } catch (error) {
+                console.error('Analysis error:', error);
+                alert('Analysis failed. Please try again.');
+            }
+        });
+        
+        // Socket.IO event handlers
+        socket.on('connect', function() {
+            console.log('Connected to server');
+            socket.emit('request_metrics');
+        });
+        
+        socket.on('metrics_update', function(metrics) {
+            updateMetrics(metrics);
+        });
+        
+        socket.on('new_analysis', function(analysis) {
+            // Add to recent activity table
+            const tbody = document.getElementById('recent-activity');
             
-        } catch (error) {
-            console.error('Analysis error:', error);
-            alert('Analysis failed. Please try again.');
-        }
-    });
-    
-    // Socket.IO event handlers
-    socket.on('connect', function() {
-        console.log('Connected to server');
-        socket.emit('request_metrics');
-    });
-    
-    socket.on('metrics_update', function(metrics) {
-        updateMetrics(metrics);
-    });
-    
-    socket.on('new_analysis', function(analysis) {
-        // Add to recent activity table
-        const tbody = document.getElementById('recent-activity');
-        
-        // Clear "no activity" message if it exists
+            // Clear "no activity" message if it exists
         if (tbody.children.length === 1 && tbody.children[0].classList.contains('empty-state')) {
-            tbody.innerHTML = '';
-        }
-        
-        const row = document.createElement('tr');
-        const timestamp = new Date(analysis.timestamp).toLocaleTimeString();
-        const statusBadge = analysis.result.status === 'SAFE' ? 
+                tbody.innerHTML = '';
+            }
+            
+            const row = document.createElement('tr');
+            const timestamp = new Date(analysis.timestamp).toLocaleTimeString();
+            const statusBadge = analysis.result.status === 'SAFE' ? 
             '<span class="status-badge operational"><i class="bi bi-check-circle"></i>SAFE</span>' : 
             '<span class="status-badge offline"><i class="bi bi-exclamation-triangle"></i>VIOLATION</span>';
-        
-        row.innerHTML = `
+            
+            row.innerHTML = `
             <td style="font-weight: 500; color: var(--gray-600);">${timestamp}</td>
             <td><span style="padding: 4px 12px; background: var(--gray-100); border-radius: var(--radius-full); font-size: 12px; font-weight: 600;">${analysis.user_id}</span></td>
             <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${analysis.content_preview}</td>
-            <td>${statusBadge}</td>
+                <td>${statusBadge}</td>
             <td style="color: var(--gray-500);">${(analysis.processing_time || 0).toFixed(1)}ms</td>
-        `;
+            `;
+            
+            tbody.insertBefore(row, tbody.firstChild);
+            
+            // Keep only last 10 rows
+            while (tbody.children.length > 10) {
+                tbody.removeChild(tbody.lastChild);
+            }
+        });
         
-        tbody.insertBefore(row, tbody.firstChild);
+        // Initialize on page load
+        document.addEventListener('DOMContentLoaded', function() {
+            initializeChart();
+            
+            // Request initial metrics
+            socket.emit('request_metrics');
+            
+            // Set initial timestamp
+            document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+        });
         
-        // Keep only last 10 rows
-        while (tbody.children.length > 10) {
-            tbody.removeChild(tbody.lastChild);
+        // Chart update function
+        function updateChart(timeRange) {
+            console.log('Updating chart for time range:', timeRange);
+            // Add actual chart update logic here
         }
-    });
-    
-    // Initialize on page load
-    document.addEventListener('DOMContentLoaded', function() {
-        initializeChart();
-        
-        // Request initial metrics
-        socket.emit('request_metrics');
-        
-        // Set initial timestamp
-        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
-    });
-    
-    // Chart update function
-    function updateChart(timeRange) {
-        console.log('Updating chart for time range:', timeRange);
-        // Add actual chart update logic here
-    }
-</script>
+    </script>
 {% endblock %}
