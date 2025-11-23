@@ -244,6 +244,16 @@
         border-radius: var(--radius);
     }
     
+    [data-theme="dark"] .log-container {
+        background: #000000;
+        color: var(--gray-700);
+        border: 1px solid var(--gray-200);
+    }
+    
+    [data-theme="dark"] .log-entry {
+        border-bottom-color: rgba(255, 255, 255, 0.05);
+    }
+    
     .log-entry {
         padding: 8px 0;
         border-bottom: 1px solid rgba(255, 255, 255, 0.1);
@@ -636,7 +646,7 @@
             } else {
                 if (confirm('Restart entire system? This will cause temporary downtime for all services.')) {
                     console.log('Restarting entire system...');
-            }
+                }
             }
         }
 
@@ -651,14 +661,14 @@
         function resetConfig() {
             if (confirm('Reset configuration to defaults? This will lose all custom settings.')) {
                 console.log('Resetting configuration...');
-        }
+            }
         }
 
         function clearLogs() {
             if (confirm('Clear all system logs? This action cannot be undone.')) {
             const container = document.getElementById('log-container');
             container.innerHTML = '<div class="log-entry log-info">[System] Logs cleared</div>';
-        }
+            }
         }
 
         function downloadLogs() {
