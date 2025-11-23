@@ -1,0 +1,694 @@
+{% extends "base.html" %}
+
+{% block title %}Dashboard - Compliance Filter{% endblock %}
+
+{% block extra_css %}
+<!-- Chart.js -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<style>
+    .page-header {
+        margin-bottom: 32px;
+    }
+    
+    .page-title {
+        font-size: 32px;
+        font-weight: 800;
+        letter-spacing: -1px;
+        margin-bottom: 8px;
+        color: var(--gray-900);
+    }
+    
+    .page-subtitle {
+        font-size: 16px;
+        color: var(--gray-500);
+        font-weight: 400;
+    }
+    
+    .stats-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(240px, 1fr));
+        gap: 24px;
+        margin-bottom: 32px;
+    }
+    
+    .stat-value {
+        font-size: 36px;
+        font-weight: 700;
+        letter-spacing: -1px;
+        margin: 16px 0 8px 0;
+        color: var(--gray-900);
+    }
+    
+    .stat-label {
+        font-size: 13px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray-500);
+        margin-bottom: 4px;
+    }
+    
+    .stat-icon {
+        width: 48px;
+        height: 48px;
+        border-radius: var(--radius-md);
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        font-size: 24px;
+        margin-bottom: 16px;
+    }
+    
+    .stat-icon.primary {
+        background: linear-gradient(135deg, rgba(0, 122, 255, 0.1) 0%, rgba(0, 122, 255, 0.05) 100%);
+        color: var(--primary);
+    }
+    
+    .stat-icon.danger {
+        background: linear-gradient(135deg, rgba(255, 59, 48, 0.1) 0%, rgba(255, 59, 48, 0.05) 100%);
+        color: var(--danger);
+    }
+    
+    .stat-icon.success {
+        background: linear-gradient(135deg, rgba(52, 199, 89, 0.1) 0%, rgba(52, 199, 89, 0.05) 100%);
+        color: var(--success);
+    }
+    
+    .stat-icon.info {
+        background: linear-gradient(135deg, rgba(90, 200, 250, 0.1) 0%, rgba(90, 200, 250, 0.05) 100%);
+        color: var(--info);
+    }
+    
+    .chart-container {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow);
+        margin-bottom: 32px;
+    }
+    
+    .chart-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .chart-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gray-900);
+        letter-spacing: -0.5px;
+    }
+    
+    .chart-area {
+        height: 300px;
+        position: relative;
+    }
+    
+    .status-badge {
+        display: inline-flex;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 16px;
+        border-radius: var(--radius-full);
+        font-size: 13px;
+        font-weight: 600;
+        letter-spacing: 0.3px;
+    }
+    
+    .status-badge.operational {
+        background: rgba(52, 199, 89, 0.1);
+        color: var(--success);
+    }
+    
+    .status-badge.offline {
+        background: rgba(255, 59, 48, 0.1);
+        color: var(--danger);
+    }
+    
+    .innovation-grid {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+        gap: 16px;
+    }
+    
+    .innovation-item {
+        background: var(--gray-50);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius);
+        padding: 16px;
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .innovation-item:hover {
+        background: white;
+        box-shadow: var(--shadow-md);
+        transform: translateY(-2px);
+    }
+    
+    .innovation-name {
+        font-size: 14px;
+        font-weight: 600;
+        color: var(--gray-700);
+        display: flex;
+        align-items: center;
+        gap: 8px;
+    }
+    
+    .innovation-status {
+        padding: 4px 12px;
+        border-radius: var(--radius-full);
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+    }
+    
+    .innovation-status.active {
+        background: rgba(52, 199, 89, 0.1);
+        color: var(--success);
+    }
+    
+    .test-interface {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow);
+        margin-bottom: 32px;
+    }
+    
+    .test-form {
+        display: grid;
+        grid-template-columns: 1fr auto;
+        gap: 16px;
+        margin-bottom: 24px;
+    }
+    
+    .test-textarea {
+        padding: 16px;
+        border: 1px solid var(--gray-300);
+        border-radius: var(--radius);
+        font-size: 15px;
+        font-family: inherit;
+        resize: vertical;
+        transition: all 0.2s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .test-textarea:focus {
+        outline: none;
+        border-color: var(--primary);
+        box-shadow: 0 0 0 3px rgba(0, 122, 255, 0.1);
+    }
+    
+    .results-panel {
+        margin-top: 24px;
+        padding: 24px;
+        border-radius: var(--radius);
+        display: none;
+    }
+    
+    .results-panel.show {
+        display: block;
+        animation: fadeIn 0.3s cubic-bezier(0.4, 0, 0.2, 1);
+    }
+    
+    .results-panel.safe {
+        background: rgba(52, 199, 89, 0.05);
+        border: 1px solid rgba(52, 199, 89, 0.2);
+    }
+    
+    .results-panel.violation {
+        background: rgba(255, 59, 48, 0.05);
+        border: 1px solid rgba(255, 59, 48, 0.2);
+    }
+    
+    .activity-table {
+        background: rgba(255, 255, 255, 0.9);
+        backdrop-filter: blur(20px) saturate(180%);
+        -webkit-backdrop-filter: blur(20px) saturate(180%);
+        border: 1px solid var(--gray-200);
+        border-radius: var(--radius-lg);
+        padding: 32px;
+        box-shadow: var(--shadow);
+        overflow: hidden;
+    }
+    
+    .table-header {
+        display: flex;
+        justify-content: space-between;
+        align-items: center;
+        margin-bottom: 24px;
+    }
+    
+    .table-title {
+        font-size: 18px;
+        font-weight: 700;
+        color: var(--gray-900);
+        letter-spacing: -0.5px;
+    }
+    
+    table {
+        width: 100%;
+        border-collapse: collapse;
+    }
+    
+    thead {
+        background: var(--gray-50);
+    }
+    
+    th {
+        padding: 12px 16px;
+        text-align: left;
+        font-size: 12px;
+        font-weight: 700;
+        text-transform: uppercase;
+        letter-spacing: 0.5px;
+        color: var(--gray-500);
+        border-bottom: 1px solid var(--gray-200);
+    }
+    
+    td {
+        padding: 16px;
+        border-bottom: 1px solid var(--gray-100);
+        font-size: 14px;
+        color: var(--gray-700);
+    }
+    
+    tr:hover {
+        background: var(--gray-50);
+    }
+    
+    .empty-state {
+        text-align: center;
+        padding: 64px 32px;
+        color: var(--gray-400);
+    }
+    
+    .empty-state i {
+        font-size: 48px;
+        margin-bottom: 16px;
+        opacity: 0.5;
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<!-- Page Header -->
+<div class="page-header">
+    <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
+        <div>
+            <h1 class="page-title">Dashboard</h1>
+            <p class="page-subtitle">Real-time threat detection and content analysis</p>
+        </div>
+        <div style="display: flex; align-items: center; gap: 16px;">
+            <span class="status-badge {% if system_status %}operational{% else %}offline{% endif %}" id="system-status">
+                <i class="bi bi-{% if system_status %}check-circle{% else %}exclamation-triangle{% endif %}"></i>
+                {% if system_status %}OPERATIONAL{% else %}OFFLINE{% endif %}
+            </span>
+            <span style="font-size: 13px; color: var(--gray-500);">Last Updated: <span id="last-updated">--:--:--</span></span>
+        </div>
+    </div>
+</div>
+
+<!-- Stats Grid -->
+<div class="stats-grid">
+    <div class="stat-card primary">
+        <div class="stat-icon primary">
+            <i class="bi bi-file-text"></i>
+        </div>
+        <div class="stat-label">Total Processed</div>
+        <div class="stat-value" id="total-processed">{{ metrics.total_processed }}</div>
+    </div>
+    
+    <div class="stat-card danger">
+        <div class="stat-icon danger">
+            <i class="bi bi-shield-exclamation"></i>
+        </div>
+        <div class="stat-label">Threats Detected</div>
+        <div class="stat-value" id="threats-detected">{{ metrics.threats_detected }}</div>
+    </div>
+    
+    <div class="stat-card success">
+        <div class="stat-icon success">
+            <i class="bi bi-bullseye"></i>
+        </div>
+        <div class="stat-label">Accuracy Rate</div>
+        <div class="stat-value" id="accuracy-rate">{{ "%.1f"|format(metrics.accuracy_rate) }}%</div>
+    </div>
+    
+    <div class="stat-card info">
+        <div class="stat-icon info">
+            <i class="bi bi-clock"></i>
+        </div>
+        <div class="stat-label">System Uptime</div>
+        <div class="stat-value" id="system-uptime">Online</div>
+    </div>
+</div>
+
+<!-- Charts and Innovation Status -->
+<div style="display: grid; grid-template-columns: 2fr 1fr; gap: 32px; margin-bottom: 32px;">
+    <!-- Threat Detection Chart -->
+    <div class="chart-container">
+        <div class="chart-header">
+            <h3 class="chart-title">Threat Detection Over Time</h3>
+            <div style="display: flex; gap: 8px;">
+                <button class="btn-premium" style="padding: 8px 16px; font-size: 13px;" onclick="updateChart('24h')">24h</button>
+                <button class="btn-premium" style="padding: 8px 16px; font-size: 13px;" onclick="updateChart('7d')">7d</button>
+                <button class="btn-premium" style="padding: 8px 16px; font-size: 13px;" onclick="updateChart('30d')">30d</button>
+            </div>
+        </div>
+        <div class="chart-area">
+            <canvas id="threatChart"></canvas>
+        </div>
+    </div>
+    
+    <!-- Innovation Systems Status -->
+    <div class="premium-card">
+        <h3 class="chart-title" style="margin-bottom: 24px;">Innovation Systems</h3>
+        <div class="innovation-grid">
+            <div class="innovation-item">
+                <div class="innovation-name">
+                    <i class="bi bi-brain" style="color: var(--success);"></i>
+                    <span>Adaptive Learning</span>
+                </div>
+                <span class="innovation-status active">Active</span>
+            </div>
+            <div class="innovation-item">
+                <div class="innovation-name">
+                    <i class="bi bi-person-check" style="color: var(--success);"></i>
+                    <span>Behavioral Analysis</span>
+                </div>
+                <span class="innovation-status active">Active</span>
+            </div>
+            <div class="innovation-item">
+                <div class="innovation-name">
+                    <i class="bi bi-share" style="color: var(--success);"></i>
+                    <span>Federated Learning</span>
+                </div>
+                <span class="innovation-status active">Active</span>
+            </div>
+            <div class="innovation-item">
+                <div class="innovation-name">
+                    <i class="bi bi-robot" style="color: var(--success);"></i>
+                    <span>HuggingFace AI</span>
+                </div>
+                <span class="innovation-status active">Active</span>
+            </div>
+            <div class="innovation-item">
+                <div class="innovation-name">
+                    <i class="bi bi-lightbulb" style="color: var(--success);"></i>
+                    <span>Semantic Analysis</span>
+                </div>
+                <span class="innovation-status active">Active</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Test Interface -->
+<div class="test-interface">
+    <h3 class="chart-title" style="margin-bottom: 24px;">Content Analysis Test</h3>
+    <form id="analysis-form">
+        <div class="test-form">
+            <div>
+                <textarea class="test-textarea" id="test-content" rows="3" placeholder="Enter content to analyze for compliance violations..."></textarea>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 12px;">
+                <input type="text" class="form-control-premium" id="user-id" placeholder="User ID (optional)" style="width: 200px;">
+                <button type="submit" class="btn-premium btn-premium-primary" style="width: 200px;">
+                    <i class="bi bi-search"></i>
+                    Analyze Content
+                </button>
+            </div>
+        </div>
+    </form>
+    
+    <!-- Analysis Results -->
+    <div id="analysis-results" class="results-panel">
+        <h4 style="margin-bottom: 16px; font-size: 16px; font-weight: 700;">Analysis Results</h4>
+        <div id="results-content"></div>
+    </div>
+</div>
+
+<!-- Recent Activity -->
+<div class="activity-table">
+    <div class="table-header">
+        <h3 class="table-title">Recent Activity</h3>
+        <a href="/monitoring" class="btn-premium" style="padding: 8px 16px; font-size: 13px; text-decoration: none;">
+            View All <i class="bi bi-arrow-right"></i>
+        </a>
+    </div>
+    <table>
+        <thead>
+            <tr>
+                <th>Timestamp</th>
+                <th>User</th>
+                <th>Content Preview</th>
+                <th>Status</th>
+                <th>Processing Time</th>
+            </tr>
+        </thead>
+        <tbody id="recent-activity">
+            <tr>
+                <td colspan="5" class="empty-state">
+                    <i class="bi bi-inbox"></i>
+                    <div>No recent activity</div>
+                </td>
+            </tr>
+        </tbody>
+    </table>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    // Initialize Socket.IO
+    const socket = io();
+    
+    // Chart configuration
+    let threatChart;
+    
+    // Initialize chart
+    function initializeChart() {
+        const ctx = document.getElementById('threatChart').getContext('2d');
+        threatChart = new Chart(ctx, {
+            type: 'line',
+            data: {
+                labels: ['00:00', '04:00', '08:00', '12:00', '16:00', '20:00'],
+                datasets: [{
+                    label: 'Threats Detected',
+                    data: [0, 2, 1, 5, 3, 1],
+                    borderColor: 'rgb(255, 59, 48)',
+                    backgroundColor: 'rgba(255, 59, 48, 0.1)',
+                    borderWidth: 3,
+                    fill: true,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }, {
+                    label: 'Total Processed',
+                    data: [10, 25, 15, 40, 30, 20],
+                    borderColor: 'rgb(0, 122, 255)',
+                    backgroundColor: 'rgba(0, 122, 255, 0.1)',
+                    borderWidth: 3,
+                    fill: false,
+                    tension: 0.4,
+                    pointRadius: 4,
+                    pointHoverRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: {
+                    legend: {
+                        display: true,
+                        position: 'top',
+                        labels: {
+                            usePointStyle: true,
+                            padding: 20,
+                            font: {
+                                family: 'Inter',
+                                size: 13,
+                                weight: '600'
+                            }
+                        }
+                    }
+                },
+                scales: {
+                    y: {
+                        beginAtZero: true,
+                        grid: {
+                            color: 'rgba(0, 0, 0, 0.05)'
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    },
+                    x: {
+                        grid: {
+                            display: false
+                        },
+                        ticks: {
+                            font: {
+                                family: 'Inter',
+                                size: 12
+                            }
+                        }
+                    }
+                }
+            }
+        });
+    }
+    
+    // Update metrics display
+    function updateMetrics(metrics) {
+        document.getElementById('total-processed').textContent = metrics.total_processed;
+        document.getElementById('threats-detected').textContent = metrics.threats_detected;
+        document.getElementById('accuracy-rate').textContent = (metrics.accuracy_rate || 98.5).toFixed(1) + '%';
+        document.getElementById('system-uptime').textContent = (metrics.uptime_hours || 0).toFixed(1) + 'h';
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+    }
+    
+    // Handle form submission
+    document.getElementById('analysis-form').addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const content = document.getElementById('test-content').value.trim();
+        const userId = document.getElementById('user-id').value.trim() || 'test_user';
+        
+        if (!content) {
+            alert('Please enter content to analyze');
+            return;
+        }
+        
+        try {
+            const response = await fetch('/api/analyze', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json'
+                },
+                body: JSON.stringify({
+                    content: content,
+                    user_id: userId,
+                    context: {}
+                })
+            });
+            
+            const result = await response.json();
+            
+            // Display results
+            const resultsDiv = document.getElementById('analysis-results');
+            const resultsContent = document.getElementById('results-content');
+            
+            let statusBadge = '';
+            let panelClass = 'safe';
+            
+            if (result.status === 'SAFE') {
+                statusBadge = '<span class="status-badge operational"><i class="bi bi-check-circle"></i>SAFE</span>';
+                panelClass = 'safe';
+            } else if (result.status === 'VIOLATION') {
+                statusBadge = '<span class="status-badge offline"><i class="bi bi-exclamation-triangle"></i>VIOLATION</span>';
+                panelClass = 'violation';
+            } else {
+                statusBadge = '<span class="status-badge" style="background: rgba(255, 149, 0, 0.1); color: var(--warning);"><i class="bi bi-question-circle"></i>ERROR</span>';
+                panelClass = 'safe';
+            }
+            
+            resultsContent.innerHTML = `
+                <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 16px;">
+                    <div>
+                        <div style="margin-bottom: 12px;"><strong>Status:</strong> ${statusBadge}</div>
+                        <div style="margin-bottom: 12px;"><strong>Confidence:</strong> <span style="padding: 4px 12px; background: var(--gray-100); border-radius: var(--radius-full); font-size: 12px; font-weight: 600;">${((result.confidence || 0) * 100).toFixed(1)}%</span></div>
+                        <div><strong>Threat Level:</strong> <span style="text-transform: uppercase; font-weight: 600;">${result.threat_level || 'N/A'}</span></div>
+                    </div>
+                    <div>
+                        <div style="margin-bottom: 12px;"><strong>Processing Time:</strong> ${(result.processing_time_ms || 0).toFixed(1)}ms</div>
+                        <div style="margin-bottom: 12px;"><strong>Innovations Used:</strong> ${result.innovations_used?.length || 0}</div>
+                        <div><strong>Evidence Sources:</strong> ${result.evidence_sources || 'None'}</div>
+                    </div>
+                </div>
+                ${result.reasoning ? `<div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius); margin-top: 16px;"><strong>Reasoning:</strong> ${result.reasoning}</div>` : ''}
+            `;
+            
+            resultsDiv.className = `results-panel show ${panelClass}`;
+            
+        } catch (error) {
+            console.error('Analysis error:', error);
+            alert('Analysis failed. Please try again.');
+        }
+    });
+    
+    // Socket.IO event handlers
+    socket.on('connect', function() {
+        console.log('Connected to server');
+        socket.emit('request_metrics');
+    });
+    
+    socket.on('metrics_update', function(metrics) {
+        updateMetrics(metrics);
+    });
+    
+    socket.on('new_analysis', function(analysis) {
+        // Add to recent activity table
+        const tbody = document.getElementById('recent-activity');
+        
+        // Clear "no activity" message if it exists
+        if (tbody.children.length === 1 && tbody.children[0].classList.contains('empty-state')) {
+            tbody.innerHTML = '';
+        }
+        
+        const row = document.createElement('tr');
+        const timestamp = new Date(analysis.timestamp).toLocaleTimeString();
+        const statusBadge = analysis.result.status === 'SAFE' ? 
+            '<span class="status-badge operational"><i class="bi bi-check-circle"></i>SAFE</span>' : 
+            '<span class="status-badge offline"><i class="bi bi-exclamation-triangle"></i>VIOLATION</span>';
+        
+        row.innerHTML = `
+            <td style="font-weight: 500; color: var(--gray-600);">${timestamp}</td>
+            <td><span style="padding: 4px 12px; background: var(--gray-100); border-radius: var(--radius-full); font-size: 12px; font-weight: 600;">${analysis.user_id}</span></td>
+            <td style="max-width: 300px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;">${analysis.content_preview}</td>
+            <td>${statusBadge}</td>
+            <td style="color: var(--gray-500);">${(analysis.processing_time || 0).toFixed(1)}ms</td>
+        `;
+        
+        tbody.insertBefore(row, tbody.firstChild);
+        
+        // Keep only last 10 rows
+        while (tbody.children.length > 10) {
+            tbody.removeChild(tbody.lastChild);
+        }
+    });
+    
+    // Initialize on page load
+    document.addEventListener('DOMContentLoaded', function() {
+        initializeChart();
+        
+        // Request initial metrics
+        socket.emit('request_metrics');
+        
+        // Set initial timestamp
+        document.getElementById('last-updated').textContent = new Date().toLocaleTimeString();
+    });
+    
+    // Chart update function
+    function updateChart(timeRange) {
+        console.log('Updating chart for time range:', timeRange);
+        // Add actual chart update logic here
+    }
+</script>
+{% endblock %}

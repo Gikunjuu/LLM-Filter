@@ -1,0 +1,115 @@
+# LLM Compliance Filter Configuration
+
+# Hate Speech Detection
+hate_speech:
+  model_name: "unitary/toxic-bert"  # Alternative: "martin-ha/toxic-bert", "Hate-speech-CNERG/dehatebert-mono-english"
+  threshold: 0.7  # Confidence threshold (0.0-1.0)
+  use_cache: true
+  max_length: 512
+
+# Privacy Detection
+privacy:
+  # Enable/disable different privacy checks
+  checks:
+    pii_detection: true
+    email_detection: true
+    phone_detection: true
+    ssn_detection: true
+    credit_card_detection: true
+    address_detection: true
+    medical_info: true
+    financial_info: true
+  
+  # Risk levels for different types of violations
+  risk_levels:
+    high_risk_threshold: 0.8  # Block immediately
+    medium_risk_threshold: 0.5  # Flag for review
+    low_risk_threshold: 0.2  # Log but allow
+  
+  # Custom patterns (regex)
+  custom_patterns:
+    api_keys: "(?i)api[_-]?key[s]?[\\s]*[:=][\\s]*['\"]?[a-zA-Z0-9_-]{20,}['\"]?"
+    tokens: "(?i)token[s]?[\\s]*[:=][\\s]*['\"]?[a-zA-Z0-9._-]{20,}['\"]?"
+
+# Overall Compliance Scoring
+compliance:
+  # How to combine scores (weighted_average, max, product)
+  scoring_method: "weighted_average"
+  
+  # Weights for different violation types
+  weights:
+    hate_speech: 0.5
+    privacy: 0.5
+  
+  # Final action thresholds
+  thresholds:
+    block_threshold: 0.8  # Block the prompt
+    warn_threshold: 0.4   # Allow but log warning (lowered to catch privacy violations)
+    pass_threshold: 0.2   # Allow with minimal logging
+
+# Logging and Monitoring
+logging:
+  level: "INFO"  # DEBUG, INFO, WARNING, ERROR
+  format: "json"  # json, text
+  log_to_file: true
+  log_to_console: true
+  audit_logs: true
+  
+  # What to log
+  log_details:
+    prompt_content: false  # For privacy, usually false in production
+    violation_details: true
+    scores: true
+    timestamps: true
+    user_context: true
+
+# LLM Integration
+llm_integration:
+  # Timeout settings
+  timeout_seconds: 30
+  
+  # Retry settings
+  max_retries: 3
+  retry_delay: 1.0
+  
+  # Rate limiting
+  requests_per_minute: 60
+
+# Model Caching
+caching:
+  model_cache_dir: "./models_cache"
+  enable_model_caching: true
+  cache_max_size_gb: 5
+
+# Performance Optimizations
+performance:
+  # Enable all performance optimizations
+  enable_optimizations: false  # Set to true for production
+  
+  # Caching system
+  enable_caching: true
+  cache:
+    memory_size: 1000  # L1 cache size
+    ttl: 3600  # Cache time-to-live in seconds
+    redis_host: "localhost"
+    redis_port: 6379
+    redis_db: 0
+  
+  # Performance monitoring
+  enable_monitoring: true
+  monitor_window_size: 1000  # Performance metrics window size
+  
+  # Parallel processing
+  max_workers: 4  # Number of threads for parallel processing
+  chunk_size: 50  # Batch processing chunk size
+  
+  # Memory optimization
+  memory_threshold_mb: 1000  # Trigger cleanup at this memory usage
+  gc_frequency: 100  # Run garbage collection every N requests
+
+# Feedback System
+feedback:
+  enable_feedback: true
+  feedback_threshold: 0.1  # When to prompt for feedback
+  store_feedback: true
+  feedback_file: "./logs/feedback.jsonl"
