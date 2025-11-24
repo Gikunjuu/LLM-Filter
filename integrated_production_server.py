@@ -8,7 +8,7 @@ Combines all detection capabilities:
 - ML-based compliance filtering
 """
 
-from flask import Flask, render_template_string, request, jsonify
+from flask import Flask, render_template, render_template_string, request, jsonify
 import sys
 import os
 sys.path.insert(0, os.path.join(os.path.dirname(__file__), 'src'))
@@ -17,6 +17,8 @@ import time
 import logging
 from datetime import datetime
 from typing import Dict, Any
+from collections import deque
+from jinja2 import TemplateNotFound
 
 # Load environment variables from .env file
 try:
@@ -30,7 +32,8 @@ logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
 # Initialize Flask app
-app = Flask(__name__)
+TEMPLATE_DIR = os.path.join(os.path.dirname(__file__), 'templates')
+app = Flask(__name__, template_folder=TEMPLATE_DIR)
 app.config['SECRET_KEY'] = 'integrated_production_2024'
 
 # Import all detection modules
@@ -76,6 +79,8 @@ class IntegratedSystem:
         self.openai_filter = None
         self.privacy_detector = None
         self.is_initialized = False
+        self.initialized_at = None
+        self.recent_analyses = deque(maxlen=50)
         self.metrics = {
             'total_processed': 0,
             'jailbreak_attempts': 0,
@@ -130,6 +135,7 @@ class IntegratedSystem:
                     logger.error(f"❌ Failed to initialize privacy detector: {e}")
             
             self.is_initialized = True
+            self.initialized_at = datetime.now()
             logger.info("🎉 Integrated system ready!")
             return True
         return False
@@ -408,6 +414,16 @@ class IntegratedSystem:
             self.metrics['avg_response_time'] = result['processing_time_ms']
         
         return result
+
+    def log_analysis_event(self, user_id: str, text: str, formatted_result: Dict[str, Any]) -> None:
+        """Store latest analysis for UI dashboards."""
+        preview = text[:140] + '...' if len(text) > 140 else text
+        self.recent_analyses.appendleft({
+            'timestamp': datetime.now().isoformat(),
+            'user_id': user_id,
+            'content_preview': preview,
+            'result': formatted_result
+        })
     
     def get_threat_intelligence_report(self) -> Dict[str, Any]:
         """Get comprehensive threat intelligence report"""
@@ -418,6 +434,76 @@ class IntegratedSystem:
 
 # Initialize system
 system = IntegratedSystem()
+
+
+def _calculate_threats_detected(metrics: Dict[str, Any]) -> int:
+    """Aggregate threats for dashboard display."""
+    return (
+        metrics.get('jailbreak_attempts', 0)
+        + metrics.get('privacy_violations', 0)
+        + metrics.get('hate_speech_detected', 0)
+    )
+
+
+def _get_uptime_hours() -> float:
+    """Return uptime in hours for UI."""
+    if system.initialized_at:
+        return max((datetime.now() - system.initialized_at).total_seconds() / 3600, 0.0)
+    return 0.0
+
+
+def build_dashboard_metrics() -> Dict[str, Any]:
+    """Return metrics structure expected by premium templates."""
+    return {
+        'total_processed': system.metrics.get('total_processed', 0),
+        'threats_detected': _calculate_threats_detected(system.metrics),
+        'accuracy_rate': system.metrics.get('system_accuracy', 98.5),
+        'uptime_hours': _get_uptime_hours()
+    }
+
+
+def build_metrics_payload() -> Dict[str, Any]:
+    """Combine raw metrics with UI friendly fields."""
+    payload = dict(system.metrics)
+    dashboard_metrics = build_dashboard_metrics()
+    payload.update(dashboard_metrics)
+    payload.setdefault('avg_response_time', system.metrics.get('avg_response_time', 0))
+    return payload
+
+
+def format_ui_analysis_result(raw_result: Dict[str, Any]) -> Dict[str, Any]:
+    """Map integrated analysis output to premium dashboard schema."""
+    if not raw_result.get('success', True):
+        status = 'SYSTEM_ERROR'
+    else:
+        status = 'SAFE' if raw_result.get('is_compliant', True) else 'VIOLATION'
+    detections = raw_result.get('detections', {})
+    innovations = []
+    if detections.get('openai'):
+        innovations.append('OpenAI Moderation')
+    if detections.get('jailbreak'):
+        innovations.append('Enhanced Jailbreak Detection')
+    if detections.get('privacy'):
+        innovations.append('Privacy Detector')
+    if detections.get('token_anomalies'):
+        innovations.append('Token Anomaly Analysis')
+
+    reasoning = " ".join(raw_result.get('recommendations', []))
+
+    threat_level = (raw_result.get('threat_level') or 'safe').upper()
+
+    formatted = {
+        'status': status,
+        'confidence': raw_result.get('overall_risk_score', 0.0),
+        'threat_level': threat_level,
+        'processing_time_ms': raw_result.get('processing_time_ms', 0),
+        'innovations_used': innovations,
+        'evidence_sources': raw_result.get('violations', []),
+        'reasoning': reasoning,
+        'detections': detections,
+        'raw_result': raw_result
+    }
+    return formatted
 
 
 # HTML Template
@@ -639,7 +725,17 @@ HTML_TEMPLATE = '''
 @app.route('/')
 def index():
     """Main interface"""
-    # Serve the professional UI
+    context = {
+        'system_status': system.is_initialized,
+        'metrics': build_dashboard_metrics(),
+        'recent_analyses': list(system.recent_analyses)
+    }
+    try:
+        return render_template('dashboard.html', **context)
+    except TemplateNotFound:
+        logger.warning("⚠️ dashboard.html not found. Falling back to professional_ui.html")
+
+    # Serve the professional UI fallback
     try:
         with open('src/api/professional_ui.html', 'r', encoding='utf-8') as f:
             content = f.read()
@@ -649,11 +745,70 @@ def index():
         # Fallback to embedded template if file not found
         logger.warning(f"⚠️ Could not find professional_ui.html: {e}. Using fallback template.")
         openai_enabled = system.openai_filter and system.openai_filter.enabled if system.openai_filter else False
-        return render_template_string(HTML_TEMPLATE, metrics=system.metrics, openai_enabled=openai_enabled)
+        return render_template_string(
+            HTML_TEMPLATE,
+            metrics=build_dashboard_metrics(),
+            openai_enabled=openai_enabled
+        )
     except Exception as e:
         logger.error(f"❌ Error loading professional_ui.html: {e}. Using fallback template.")
         openai_enabled = system.openai_filter and system.openai_filter.enabled if system.openai_filter else False
-        return render_template_string(HTML_TEMPLATE, metrics=system.metrics, openai_enabled=openai_enabled)
+        return render_template_string(
+            HTML_TEMPLATE,
+            metrics=build_dashboard_metrics(),
+            openai_enabled=openai_enabled
+        )
+
+
+@app.route('/monitoring')
+def monitoring_page():
+    """Monitoring UI"""
+    try:
+        return render_template(
+            'monitoring.html',
+            system_status=system.is_initialized,
+            metrics=build_dashboard_metrics(),
+            recent_analyses=list(system.recent_analyses)
+        )
+    except TemplateNotFound:
+        logger.error("❌ monitoring.html not found. Redirecting to dashboard fallback.")
+        return index()
+
+
+@app.route('/analytics')
+def analytics_page():
+    """Analytics UI"""
+    try:
+        return render_template(
+            'analytics.html',
+            system_status=system.is_initialized,
+            metrics=build_dashboard_metrics()
+        )
+    except TemplateNotFound:
+        logger.error("❌ analytics.html not found. Redirecting to dashboard fallback.")
+        return index()
+
+
+@app.route('/admin')
+def admin_page():
+    """Administration UI"""
+    try:
+        system_summary = {
+            'detectors': {
+                'enhanced': system.enhanced_detector is not None,
+                'privacy': system.privacy_detector is not None,
+                'openai': bool(system.openai_filter and system.openai_filter.enabled)
+            },
+            'metrics': build_dashboard_metrics()
+        }
+        return render_template(
+            'admin.html',
+            system_status=system.is_initialized,
+            system_summary=system_summary
+        )
+    except TemplateNotFound:
+        logger.error("❌ admin.html not found. Redirecting to dashboard fallback.")
+        return index()
 
 
 @app.route('/api/analyze', methods=['POST'])
@@ -661,13 +816,17 @@ def analyze():
     """Analyze content"""
     try:
         data = request.get_json()
-        text = data.get('text', '')
+        text = data.get('text') or data.get('content') or ''
+        user_id = data.get('user_id', 'dashboard_user')
         
         if not text:
             return jsonify({'success': False, 'error': 'No text provided'}), 400
         
         result = system.analyze_content(text)
-        return jsonify(result)
+        formatted_result = format_ui_analysis_result(result)
+        system.log_analysis_event(user_id, text, formatted_result)
+        formatted_result['user_id'] = user_id
+        return jsonify(formatted_result)
     
     except Exception as e:
         logger.error(f"Analysis error: {e}", exc_info=True)
@@ -677,7 +836,7 @@ def analyze():
 @app.route('/api/metrics')
 def metrics():
     """Get system metrics"""
-    return jsonify(system.metrics)
+    return jsonify(build_metrics_payload())
 
 
 @app.route('/api/threat-intelligence')
