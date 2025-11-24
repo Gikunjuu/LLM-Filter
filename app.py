@@ -42,10 +42,22 @@ except ImportError as e:
 logging.basicConfig(level=logging.INFO)
 logger = logging.getLogger(__name__)
 
-# Initialize Flask app
-app = Flask(__name__)
+# Initialize Flask app with explicit template folder
+# Get the directory where this script is located
+BASE_DIR = Path(__file__).parent
+TEMPLATES_DIR = BASE_DIR / 'templates'
+
+# Initialize Flask with explicit template folder path
+app = Flask(__name__, template_folder=str(TEMPLATES_DIR))
 app.config['SECRET_KEY'] = 'ultimate_compliance_filter_secret_key_2024'
 socketio = SocketIO(app, cors_allowed_origins="*")
+
+# Log template folder for debugging
+logger.info(f"📁 Template folder set to: {TEMPLATES_DIR}")
+if TEMPLATES_DIR.exists():
+    logger.info(f"✅ Templates directory exists: {list(TEMPLATES_DIR.glob('*.html'))}")
+else:
+    logger.error(f"❌ Templates directory not found: {TEMPLATES_DIR}")
 
 # Global system state
 class SystemState:
