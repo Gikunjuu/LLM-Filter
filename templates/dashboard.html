@@ -531,7 +531,7 @@
         <!-- Recent Activity -->
 <div class="activity-table">
     <div class="table-header">
-        <h3 class="table-title">Recent Activity</h3>
+        <h3 class="table-title">Recent </h3>
         <a href="/monitoring" class="btn-premium" style="padding: 8px 16px; font-size: 13px; text-decoration: none;">
             View All <i class="bi bi-arrow-right"></i>
                         </a>
@@ -696,6 +696,228 @@
                 panelClass = 'safe';
                 }
                 
+                // Extract specific threat categories from detections
+                let detectedCategories = [];
+                let categoryDisplay = '';
+                
+                // Debug: log the result structure
+                console.log('Analysis result:', result);
+                console.log('Jailbreak detection:', result.detections?.jailbreak);
+                
+                // Check jailbreak detection for specific category (even if not flagged as jailbreak)
+                const jbDetection = result.detections && result.detections.jailbreak ? result.detections.jailbreak : null;
+                if (jbDetection && (jbDetection.detected || jbDetection.dangerous_content_detected)) {
+                    
+                    // First, try specific_category field (most reliable)
+                    if (jbDetection.specific_category) {
+                        const catName = jbDetection.specific_category.replace(/_/g, ' ').toUpperCase();
+                        if (!detectedCategories.find(c => c.name === catName)) {
+                            detectedCategories.push({
+                                name: catName,
+                                severity: jbDetection.severity || 'moderate',
+                                confidence: jbDetection.confidence || 0
+                            });
+                        }
+                    }
+                    
+                    // Second, try category_patterns array
+                    if (jbDetection.category_patterns && jbDetection.category_patterns.length > 0) {
+                        jbDetection.category_patterns.forEach(cat => {
+                            const catName = cat.replace(/_/g, ' ').toUpperCase();
+                            if (!detectedCategories.find(c => c.name === catName)) {
+                                detectedCategories.push({
+                                    name: catName,
+                                    severity: jbDetection.severity || 'moderate',
+                                    confidence: jbDetection.confidence || 0
+                                });
+                            }
+                        });
+                    }
+                    
+                    // Third, extract from patterns array (format: "DANGEROUS CONTENT: Explosives/Weapons")
+                    if (jbDetection.patterns && jbDetection.patterns.length > 0) {
+                        jbDetection.patterns.forEach(pattern => {
+                            if (typeof pattern === 'string') {
+                                // Check for format "DANGEROUS CONTENT: Explosives/Weapons" or "VIOLENCE: ..."
+                                if (pattern.includes(':')) {
+                                    const parts = pattern.split(':');
+                                    if (parts.length > 1) {
+                                        let categoryName = parts[1].trim();
+                                        // Clean up common prefixes
+                                        categoryName = categoryName.replace(/^DANGEROUS CONTENT:?\s*/i, '');
+                                        if (categoryName && categoryName.length > 0 && !detectedCategories.find(c => c.name === categoryName.toUpperCase())) {
+                                            detectedCategories.push({
+                                                name: categoryName.toUpperCase(),
+                                                severity: jbDetection.severity || 'moderate',
+                                                confidence: jbDetection.confidence || 0
+                                            });
+                                        }
+                                    }
+                                }
+                                // Also check for patterns that contain category keywords directly
+                                else {
+                                    // Look for specific category names in the pattern
+                                    const categoryMatch = pattern.match(/(?:Explosives\/Weapons|Weapons Manufacturing|Self-Harm|Violence|Illegal Activity|Drug Manufacturing|Poison|Biological Weapons|Explosives|Weapons)/i);
+                                    if (categoryMatch) {
+                                        const categoryName = categoryMatch[0];
+                                        if (!detectedCategories.find(c => c.name === categoryName.toUpperCase())) {
+                                            detectedCategories.push({
+                                                name: categoryName.toUpperCase(),
+                                                severity: jbDetection.severity || 'moderate',
+                                                confidence: jbDetection.confidence || 0
+                                            });
+                                        }
+                                    }
+                                }
+                            }
+                        });
+                    }
+                    
+                    // Fourth, if dangerous_content technique but no category found, show it
+                    if (detectedCategories.length === 0 && jbDetection.techniques && jbDetection.techniques.includes('dangerous_content')) {
+                        detectedCategories.push({
+                            name: 'DANGEROUS CONTENT',
+                            severity: jbDetection.severity || 'moderate',
+                            confidence: jbDetection.confidence || 0
+                        });
+                    }
+                }
+                
+                // Check context threats from raw_result
+                if (result.raw_result && result.raw_result.context_threats) {
+                    result.raw_result.context_threats.forEach(threat => {
+                        const catName = threat.category.replace(/_/g, ' ').toUpperCase();
+                        if (!detectedCategories.find(c => c.name === catName)) {
+                            detectedCategories.push({
+                                name: catName,
+                                severity: threat.severity || 'moderate',
+                                confidence: threat.confidence || 0
+                            });
+                        }
+                    });
+                }
+                
+                // Extract categories from violations array (from advanced detector, etc.)
+                // Map violation types to display names
+                const violationDisplayNames = {
+                    'jailbreak_attempt': 'JAILBREAK ATTEMPT',
+                    'dangerous_content': 'DANGEROUS CONTENT',
+                    'violence': 'VIOLENCE',
+                    'hate_speech': 'HATE SPEECH',
+                    'harassment': 'HARASSMENT',
+                    'self_harm': 'SELF HARM',
+                    'sexual_content': 'SEXUAL CONTENT',
+                    'illegal_activity': 'ILLEGAL ACTIVITY',
+                    'misinformation': 'MISINFORMATION',
+                    'personal_info': 'PERSONAL INFORMATION',
+                    'privacy_violation': 'PRIVACY VIOLATION',
+                    'prompt_injection': 'PROMPT INJECTION',
+                    'social_engineering': 'SOCIAL ENGINEERING',
+                    'spam': 'SPAM',
+                    'explosives_weapons': 'EXPLOSIVES/WEAPONS',
+                    'weapons_manufacturing': 'WEAPONS MANUFACTURING',
+                    'drug_manufacturing': 'DRUG MANUFACTURING',
+                    'school_threat': 'SCHOOL THREAT',
+                    'workplace_violence': 'WORKPLACE VIOLENCE',
+                    'target_threat': 'TARGET THREAT',
+                    'sexual_violence': 'SEXUAL VIOLENCE',
+                    'medical_misinformation': 'MEDICAL MISINFORMATION',
+                    'explicit_sexual_content': 'EXPLICIT SEXUAL CONTENT',
+                    'specific_weapon': 'SPECIFIC WEAPON'
+                };
+                
+                if (result.evidence_sources && Array.isArray(result.evidence_sources)) {
+                    result.evidence_sources.forEach(violation => {
+                        const violationKey = violation.toLowerCase();
+                        const displayName = violationDisplayNames[violationKey] || violation.replace(/_/g, ' ').toUpperCase();
+                        
+                        if (!detectedCategories.find(c => c.name === displayName)) {
+                            // Get severity and confidence from appropriate detection source
+                            let severity = 'moderate';
+                            let confidence = result.confidence || 0;
+                            
+                            // Try to get from specific detection
+                            if (violationKey === 'jailbreak_attempt' && jbDetection) {
+                                severity = jbDetection.severity || 'moderate';
+                                confidence = jbDetection.confidence || confidence;
+                            } else if (violationKey === 'hate_speech' && result.detections?.hate_speech) {
+                                severity = result.detections.hate_speech.severity || 'moderate';
+                                confidence = result.detections.hate_speech.confidence || confidence;
+                            } else if (violationKey === 'privacy_violation' && result.detections?.privacy) {
+                                severity = result.detections.privacy.risk_level || 'moderate';
+                                confidence = result.detections.privacy.privacy_score || confidence;
+                            } else if (violationKey.includes('violence') || violationKey === 'dangerous_content') {
+                                // Violence/dangerous content should be high severity
+                                severity = result.threat_level === 'CRITICAL' ? 'critical' : 
+                                          result.threat_level === 'HIGH' ? 'high' : 'moderate';
+                            }
+                            
+                            detectedCategories.push({
+                                name: displayName,
+                                severity: severity,
+                                confidence: confidence
+                            });
+                        }
+                    });
+                }
+                
+                console.log('Detected categories:', detectedCategories);
+                
+                // Build category display - always show if violation detected
+                if (detectedCategories.length > 0) {
+                    const categoryItems = detectedCategories.map(cat => {
+                        const severityColor = cat.severity === 'critical' ? '#dc3545' : 
+                                            cat.severity === 'high' ? '#ff6b35' : 
+                                            cat.severity === 'moderate' ? '#ffc107' : '#6c757d';
+                        return `
+                            <div style="display: inline-block; margin: 4px 8px 4px 0; padding: 8px 16px; background: ${severityColor}; color: white; border-radius: 6px; font-weight: 700; font-size: 14px;">
+                                ${cat.name}
+                                <span style="font-size: 11px; opacity: 0.9; margin-left: 8px;">${(cat.confidence * 100).toFixed(0)}%</span>
+                            </div>
+                        `;
+                    }).join('');
+                    
+                    categoryDisplay = `
+                        <div style="margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: var(--radius); border-left: 4px solid #dc3545;">
+                            <div style="margin-bottom: 12px; font-weight: 700; font-size: 14px; color: var(--gray-800);">
+                                <i class="bi bi-exclamation-triangle" style="color: #dc3545; margin-right: 8px;"></i>
+                                Detected Threat Categories:
+                            </div>
+                            <div style="display: flex; flex-wrap: wrap; align-items: center;">
+                                ${categoryItems}
+                            </div>
+                        </div>
+                    `;
+                } else if (result.status === 'VIOLATION' && jbDetection && (jbDetection.detected || jbDetection.dangerous_content_detected)) {
+                    // Fallback: show techniques if no specific category found
+                    if (jbDetection.techniques && jbDetection.techniques.length > 0) {
+                        const techniqueItems = jbDetection.techniques.map(tech => {
+                            const techName = tech.replace(/_/g, ' ').toUpperCase();
+                            const severityColor = jbDetection.severity === 'critical' ? '#dc3545' : 
+                                                jbDetection.severity === 'high' ? '#ff6b35' : 
+                                                jbDetection.severity === 'moderate' ? '#ffc107' : '#6c757d';
+                            return `
+                                <div style="display: inline-block; margin: 4px 8px 4px 0; padding: 8px 16px; background: ${severityColor}; color: white; border-radius: 6px; font-weight: 700; font-size: 14px;">
+                                    ${techName}
+                                    <span style="font-size: 11px; opacity: 0.9; margin-left: 8px;">${((jbDetection.confidence || 0) * 100).toFixed(0)}%</span>
+                                </div>
+                            `;
+                        }).join('');
+                        
+                        categoryDisplay = `
+                            <div style="margin-top: 16px; padding: 16px; background: var(--gray-50); border-radius: var(--radius); border-left: 4px solid #dc3545;">
+                                <div style="margin-bottom: 12px; font-weight: 700; font-size: 14px; color: var(--gray-800);">
+                                    <i class="bi bi-exclamation-triangle" style="color: #dc3545; margin-right: 8px;"></i>
+                                    Detected Threat Categories:
+                                </div>
+                                <div style="display: flex; flex-wrap: wrap; align-items: center;">
+                                    ${techniqueItems}
+                                </div>
+                            </div>
+                        `;
+                    }
+                }
+                
                 resultsContent.innerHTML = `
                 <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 24px; margin-bottom: 16px;">
                     <div>
@@ -709,6 +931,7 @@
                         <div><strong>Evidence Sources:</strong> ${result.evidence_sources || 'None'}</div>
                     </div>
                 </div>
+                ${categoryDisplay}
                 ${result.reasoning ? `<div style="padding: 16px; background: var(--gray-50); border-radius: var(--radius); margin-top: 16px;"><strong>Reasoning:</strong> ${result.reasoning}</div>` : ''}
             `;
             

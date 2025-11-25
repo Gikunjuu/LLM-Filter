@@ -185,13 +185,99 @@ class IntegratedSystem:
                 is_jailbreak = jailbreak_result.is_jailbreak == True
                 is_hate_speech_only = jailbreak_result.is_jailbreak == 'hate_speech'
                 
+                # Check if jailbreak result contains only violence/dangerous content without actual jailbreak patterns
+                jb_techniques = [t.value for t in jailbreak_result.techniques]
+                actual_jailbreak_techs = ['role_playing', 'instruction_override', 'emotional_manipulation', 
+                                         'context_switching', 'encoding_obfuscation', 'repetition_attack',
+                                         'authority_claim', 'fictional_scenario', 'system_prompt_leak',
+                                         'chain_of_thought_manipulation']
+                content_only_techs = ['violence', 'dangerous_content', 'self_harm', 'illegal_activity', 
+                                    'exploitation', 'malicious_intent']
+                
+                has_actual_jb = any(tech in jb_techniques for tech in actual_jailbreak_techs)
+                only_content = (len(jb_techniques) > 0 and 
+                               all(tech in content_only_techs for tech in jb_techniques) and
+                               not has_actual_jb)
+                
+                # Extract specific threat category from patterns (e.g., "Explosives/Weapons", "Self-Harm", etc.)
+                specific_category = None
+                category_patterns = []
+                
+                # Look for specific category names in patterns
+                for pattern in jailbreak_result.patterns_detected:
+                    # Patterns are formatted like "DANGEROUS CONTENT: Explosives/Weapons"
+                    if ':' in pattern:
+                        category_name = pattern.split(':', 1)[1].strip()
+                        if category_name:
+                            category_patterns.append(category_name)
+                            if not specific_category:
+                                specific_category = category_name
+                    # Also check for other pattern formats
+                    elif any(keyword in pattern.upper() for keyword in ['EXPLOSIVES', 'WEAPONS', 'SELF-HARM', 'VIOLENCE', 'ILLEGAL']):
+                        category_patterns.append(pattern)
+                        if not specific_category:
+                            specific_category = pattern
+                
+                # If dangerous_content is detected, extract the specific category
+                if 'dangerous_content' in jb_techniques:
+                    if category_patterns:
+                        specific_category = category_patterns[0]
+                    else:
+                        # Fallback: try to infer from patterns or techniques
+                        if any('bomb' in p.lower() or 'explosive' in p.lower() for p in jailbreak_result.patterns_detected):
+                            specific_category = 'Explosives/Weapons'
+                        elif any('weapon' in p.lower() or 'gun' in p.lower() for p in jailbreak_result.patterns_detected):
+                            specific_category = 'Weapons Manufacturing'
+                        else:
+                            specific_category = 'Dangerous Content'
+                
+                # If only violence/content detected without jailbreak patterns, don't treat as jailbreak
+                # BUT still flag it as a violation and show the category
+                if only_content and not is_jailbreak:
+                    logger.info(f"⚠️ Dangerous content detected (not jailbreak): {jb_techniques}, category: {specific_category}")
+                    # Don't set jailbreak_detected, but still store the detection info
+                    is_jailbreak = False
+                    # Still mark as non-compliant if dangerous content detected
+                    if jailbreak_result.confidence > 0.3:
+                        result['is_compliant'] = False
+                        # Add appropriate violation based on category
+                        if specific_category:
+                            # Map category names to violation types
+                            category_to_violation = {
+                                'Explosives/Weapons': 'dangerous_content',
+                                'Weapons Manufacturing': 'dangerous_content',
+                                'Self-Harm': 'self_harm',
+                                'Violence': 'violence',
+                                'Illegal Activity': 'illegal_activity',
+                                'Drug Manufacturing': 'illegal_activity',
+                                'Poison/Toxins': 'dangerous_content',
+                                'Biological Weapons': 'dangerous_content',
+                                'Hazardous Materials': 'dangerous_content'
+                            }
+                            violation_name = category_to_violation.get(specific_category, specific_category.lower().replace('/', '_').replace(' ', '_'))
+                            if violation_name not in result['violations']:
+                                result['violations'].append(violation_name)
+                        elif 'dangerous_content' in jb_techniques:
+                            if 'dangerous_content' not in result['violations']:
+                                result['violations'].append('dangerous_content')
+                        elif 'violence' in jb_techniques:
+                            if 'violence' not in result['violations']:
+                                result['violations'].append('violence')
+                        elif 'self_harm' in jb_techniques:
+                            if 'self_harm' not in result['violations']:
+                                result['violations'].append('self_harm')
+                        result['overall_risk_score'] = max(result['overall_risk_score'], jailbreak_result.confidence)
+                
                 result['detections']['jailbreak'] = {
                     'detected': is_jailbreak,
                     'severity': jailbreak_result.severity.value,
                     'confidence': jailbreak_result.confidence,
-                    'techniques': [t.value for t in jailbreak_result.techniques],
+                    'techniques': jb_techniques,
                     'explanation': jailbreak_result.explanation,
-                    'patterns': jailbreak_result.patterns_detected[:5]
+                    'patterns': jailbreak_result.patterns_detected[:5],
+                    'specific_category': specific_category,  # e.g., "Explosives/Weapons"
+                    'category_patterns': category_patterns,  # All detected categories
+                    'dangerous_content_detected': 'dangerous_content' in jb_techniques  # Flag for UI
                 }
                 
                 # Handle hate speech classification separately
@@ -236,8 +322,9 @@ class IntegratedSystem:
             context_threats_detected = []
             for threat in context_result:
                 if threat.detected:
+                    threat_category = threat.category.value
                     context_threats_detected.append({
-                        'category': threat.category.value,
+                        'category': threat_category,
                         'severity': threat.severity,
                         'confidence': threat.confidence,
                         'indicators': len(threat.matched_patterns),
@@ -245,6 +332,9 @@ class IntegratedSystem:
                     })
                     result['is_compliant'] = False
                     result['overall_risk_score'] = max(result['overall_risk_score'], threat.confidence)
+                    # Add context threat to violations list
+                    if threat_category not in result['violations']:
+                        result['violations'].append(threat_category)
             
             if context_threats_detected:
                 result['context_threats'] = context_threats_detected
@@ -282,17 +372,24 @@ class IntegratedSystem:
                 except Exception as e:
                     logger.error(f"Privacy detector error: {e}")
             
-            # Smart filtering: Suppress jailbreak if more specific threat categories are detected
-            # Priority: Context-Specific Threats > Privacy Violations > Jailbreak
+            # Smart filtering: Only suppress jailbreak if it's clearly a false positive
+            # Priority: Keep both jailbreak and context threats if both are legitimate
             
-            # If context-specific threats detected, suppress jailbreak (violence, school threats, etc. are more specific)
+            # If context-specific threats detected AND jailbreak has low confidence, 
+            # it might be a false positive - only suppress if jailbreak confidence is low
             if context_threats_detected and jailbreak_detected:
-                # Context threats are ALWAYS more specific than generic jailbreak - suppress unless extremely high confidence
                 jb_techniques = result['detections']['jailbreak'].get('techniques', [])
-                violence_related = any('violence' in t.lower() for t in jb_techniques)
+                jb_confidence = jailbreak_confidence
                 
-                if True:  # ALWAYS suppress jailbreak when context threat exists - it's more specific
-                    # Context threat is more specific - suppress jailbreak
+                # Only suppress jailbreak if confidence is low (< 0.6) - high confidence jailbreaks are likely real
+                # Also check if jailbreak techniques suggest it's actually a context threat misclassified
+                violence_related_techniques = ['violence', 'threat', 'harm', 'attack']
+                is_violence_related_jb = any(vt in ' '.join(jb_techniques).lower() for vt in violence_related_techniques)
+                
+                # Suppress only if: low confidence AND violence-related (likely false positive)
+                # OR if jailbreak confidence is very low (< 0.5) regardless
+                if (jb_confidence < 0.5) or (jb_confidence < 0.6 and is_violence_related_jb):
+                    # Likely false positive - suppress jailbreak
                     result['detections']['jailbreak']['detected'] = False
                     result['detections']['jailbreak']['confidence'] = 0.0
                     result['detections']['jailbreak']['explanation'] = f"Detection reclassified: Content flagged as context-specific threat ({', '.join([t['category'] for t in context_threats_detected])}), not a jailbreak attempt."
@@ -300,24 +397,40 @@ class IntegratedSystem:
                         result['violations'].remove('jailbreak_attempt')
                         self.metrics['jailbreak_attempts'] = max(0, self.metrics['jailbreak_attempts'] - 1)
                     jailbreak_detected = False
-                    logger.info(f"🎯 Reclassified jailbreak as context threat: {', '.join([t['category'] for t in context_threats_detected])}")
+                    logger.info(f"🎯 Reclassified low-confidence jailbreak as context threat: {', '.join([t['category'] for t in context_threats_detected])}")
+                else:
+                    # High confidence jailbreak - keep both detections
+                    logger.info(f"🔍 Both jailbreak ({jb_confidence:.1%}) and context threats detected - keeping both")
             
-            # If privacy violation detected, ALWAYS suppress jailbreak (PII triggers false positive obfuscation)
+            # If privacy violation detected, check if jailbreak is encoding-related false positive
             if privacy_has_violations and jailbreak_detected:
-                # Privacy violations (phone numbers, emails, etc.) trigger false positive "encoding" detections
-                # ALWAYS suppress jailbreak when privacy is the real issue
-                result['detections']['jailbreak']['detected'] = False
-                result['detections']['jailbreak']['severity'] = 'low'
-                result['detections']['jailbreak']['confidence'] = 0.0
-                result['detections']['jailbreak']['explanation'] = 'Detection suppressed: Privacy violation detected. PII patterns incorrectly flagged as encoding obfuscation.'
-                if 'jailbreak_attempt' in result['violations']:
-                    result['violations'].remove('jailbreak_attempt')
-                    self.metrics['jailbreak_attempts'] = max(0, self.metrics['jailbreak_attempts'] - 1)
-                jailbreak_detected = False
-                logger.info("🔒 Suppressed jailbreak: Privacy violation detected (PII incorrectly flagged as obfuscation)")
+                jb_techniques = result['detections']['jailbreak'].get('techniques', [])
+                jb_confidence = jailbreak_confidence
+                
+                # Check if jailbreak detection is encoding-related (likely false positive from PII)
+                encoding_related = any(tech in ['encoding', 'obfuscation', 'base64', 'encoded'] 
+                                      for tech in [t.lower() for t in jb_techniques])
+                
+                # Only suppress if encoding-related AND low confidence
+                if encoding_related and jb_confidence < 0.7:
+                    # Privacy violations (phone numbers, emails, etc.) trigger false positive "encoding" detections
+                    result['detections']['jailbreak']['detected'] = False
+                    result['detections']['jailbreak']['severity'] = 'low'
+                    result['detections']['jailbreak']['confidence'] = 0.0
+                    result['detections']['jailbreak']['explanation'] = 'Detection suppressed: Privacy violation detected. PII patterns incorrectly flagged as encoding obfuscation.'
+                    if 'jailbreak_attempt' in result['violations']:
+                        result['violations'].remove('jailbreak_attempt')
+                        self.metrics['jailbreak_attempts'] = max(0, self.metrics['jailbreak_attempts'] - 1)
+                    jailbreak_detected = False
+                    logger.info("🔒 Suppressed encoding-related jailbreak: Privacy violation detected (PII incorrectly flagged as obfuscation)")
+                else:
+                    # High confidence or not encoding-related - keep jailbreak detection
+                    logger.info(f"🔍 Both jailbreak ({jb_confidence:.1%}) and privacy violation detected - keeping both")
             
             # Add jailbreak to violations if still detected after filtering
-            if result['detections'].get('jailbreak', {}).get('detected'):
+            # Use the detection result as the source of truth (may have been modified by filtering)
+            jailbreak_final_detected = result['detections'].get('jailbreak', {}).get('detected', False)
+            if jailbreak_final_detected:
                 if 'jailbreak_attempt' not in result['violations']:
                     self.metrics['jailbreak_attempts'] += 1
                     result['violations'].append('jailbreak_attempt')
@@ -326,6 +439,10 @@ class IntegratedSystem:
                         result['overall_risk_score'], 
                         jailbreak_confidence
                     )
+                    logger.info(f"✅ Jailbreak attempt added to violations (confidence: {jailbreak_confidence:.1%})")
+            elif jailbreak_detected and not jailbreak_final_detected:
+                # Jailbreak was detected but suppressed - log for debugging
+                logger.debug(f"🔇 Jailbreak detected but suppressed (confidence was {jailbreak_confidence:.1%})")
             
             # 4. ML Compliance Filter (if available - DISABLED)
             if self.ml_filter:
@@ -373,9 +490,50 @@ class IntegratedSystem:
                         f"BLOCK IMMEDIATELY: Hate speech detected with {hate_det.get('confidence', 0)*100:.1f}% confidence. Content promotes hatred or discrimination."
                     )
                 if 'jailbreak_attempt' in result['violations']:
-                    result['recommendations'].append(
-                        "BLOCK: Critical jailbreak attempt detected. Do not process this request."
-                    )
+                    jb_detection = result['detections'].get('jailbreak', {})
+                    jb_severity = jb_detection.get('severity', 'moderate')
+                    jb_confidence = jb_detection.get('confidence', 0.0)
+                    jb_explanation = jb_detection.get('explanation', 'Jailbreak attempt detected')
+                    specific_category = jb_detection.get('specific_category')
+                    
+                    # Build recommendation with specific category if available
+                    if specific_category:
+                        # Show specific threat category prominently
+                        category_display = specific_category.replace('_', ' ').title()
+                        if jb_severity == 'critical':
+                            result['recommendations'].append(
+                                f"BLOCK: Critical threat detected - {category_display} ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        elif jb_severity == 'high':
+                            result['recommendations'].append(
+                                f"BLOCK: High-risk threat detected - {category_display} ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        elif jb_severity == 'moderate':
+                            result['recommendations'].append(
+                                f"WARN: Moderate risk detected - {category_display} ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        else:
+                            result['recommendations'].append(
+                                f"CAUTION: Suspicious content detected - {category_display} ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                    else:
+                        # Fallback to generic jailbreak message
+                        if jb_severity == 'critical':
+                            result['recommendations'].append(
+                                f"BLOCK: Critical jailbreak attempt detected ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        elif jb_severity == 'high':
+                            result['recommendations'].append(
+                                f"BLOCK: High-risk jailbreak attempt ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        elif jb_severity == 'moderate':
+                            result['recommendations'].append(
+                                f"WARN: Moderate jailbreak risk detected ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
+                        else:
+                            result['recommendations'].append(
+                                f"CAUTION: Suspicious content detected ({jb_confidence:.1%} confidence). {jb_explanation}"
+                            )
                 if 'privacy_violation' in result['violations']:
                     privacy_det = result['detections'].get('privacy', {})
                     if privacy_det.get('risk_level') in ['critical', 'high']:

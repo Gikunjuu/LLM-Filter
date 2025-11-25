@@ -698,15 +698,33 @@
             document.getElementById('confidence').textContent = confidence;
             document.getElementById('complianceStatus').textContent = analysis.is_compliant ? '✓ Pass' : '✗ Fail';
 
-            // Techniques
+            // Techniques - Show specific category if available
             const techniquesSection = document.getElementById('techniquesSection');
             const techniquesList = document.getElementById('techniquesList');
             
-            if (jbDetection && jbDetection.detected && jbDetection.techniques && jbDetection.techniques.length > 0) {
+            if (jbDetection && jbDetection.detected) {
                 techniquesSection.style.display = 'block';
-                techniquesList.innerHTML = jbDetection.techniques
-                    .map(t => `<span class="technique-tag">${t.replace(/_/g, ' ').toUpperCase()}</span>`)
-                    .join('');
+                
+                // Show specific category name if available (e.g., "Explosives/Weapons")
+                if (jbDetection.specific_category) {
+                    const categoryName = jbDetection.specific_category.replace(/_/g, ' ').toUpperCase();
+                    techniquesList.innerHTML = `<span class="technique-tag" style="background: #dc3545; color: white; font-weight: bold; font-size: 1.1em; padding: 8px 16px;">${categoryName}</span>`;
+                } else if (jbDetection.techniques && jbDetection.techniques.length > 0) {
+                    // Fallback to showing techniques
+                    techniquesList.innerHTML = jbDetection.techniques
+                        .map(t => {
+                            // Map dangerous_content to show category patterns if available
+                            if (t === 'dangerous_content' && jbDetection.category_patterns && jbDetection.category_patterns.length > 0) {
+                                return jbDetection.category_patterns
+                                    .map(cat => `<span class="technique-tag" style="background: #dc3545; color: white; font-weight: bold;">${cat.replace(/_/g, ' ').toUpperCase()}</span>`)
+                                    .join('');
+                            }
+                            return `<span class="technique-tag">${t.replace(/_/g, ' ').toUpperCase()}</span>`;
+                        })
+                        .join('');
+                } else {
+                    techniquesList.innerHTML = '<span class="technique-tag">JAILBREAK ATTEMPT</span>';
+                }
             } else {
                 techniquesSection.style.display = 'none';
             }
@@ -755,23 +773,48 @@
             const jbDetection = analysis.detections && analysis.detections.jailbreak;
             if (jbDetection && jbDetection.detected) {
                 const severity = jbDetection.severity || 'low';
-                let jbExplanation = `<div style="margin-bottom: 1rem;"><strong>🔒 Jailbreak Attempt Detected:</strong> `;
+                const specificCategory = jbDetection.specific_category;
                 
-                if (severity === 'critical') {
-                    jbExplanation += `Critical severity jailbreak attempt identified with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
-                } else if (severity === 'high') {
-                    jbExplanation += `High-risk jailbreak patterns detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
-                } else if (severity === 'moderate') {
-                    jbExplanation += `Moderate jailbreak indicators found with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                // Show specific category name prominently if available
+                if (specificCategory) {
+                    const categoryDisplay = specificCategory.replace(/_/g, ' ').toUpperCase();
+                    let jbExplanation = `<div style="margin-bottom: 1rem;"><strong>🚨 Threat Detected:</strong> `;
+                    
+                    if (severity === 'critical') {
+                        jbExplanation += `<span style="color: #dc3545; font-weight: bold; font-size: 1.1em;">${categoryDisplay}</span> - Critical severity threat identified with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else if (severity === 'high') {
+                        jbExplanation += `<span style="color: #dc3545; font-weight: bold;">${categoryDisplay}</span> - High-risk threat detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else if (severity === 'moderate') {
+                        jbExplanation += `<span style="color: #ffc107; font-weight: bold;">${categoryDisplay}</span> - Moderate risk detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else {
+                        jbExplanation += `<span style="color: #ffc107;">${categoryDisplay}</span> - Low-level threat indicators found with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    }
+                    
+                    if (jbDetection.explanation) {
+                        jbExplanation += jbDetection.explanation;
+                    }
+                    jbExplanation += `</div>`;
+                    explanations.push(jbExplanation);
                 } else {
-                    jbExplanation += `Low-level jailbreak patterns detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    // Fallback to generic jailbreak message
+                    let jbExplanation = `<div style="margin-bottom: 1rem;"><strong>🔒 Jailbreak Attempt Detected:</strong> `;
+                    
+                    if (severity === 'critical') {
+                        jbExplanation += `Critical severity jailbreak attempt identified with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else if (severity === 'high') {
+                        jbExplanation += `High-risk jailbreak patterns detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else if (severity === 'moderate') {
+                        jbExplanation += `Moderate jailbreak indicators found with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    } else {
+                        jbExplanation += `Low-level jailbreak patterns detected with ${(jbDetection.confidence * 100).toFixed(0)}% confidence. `;
+                    }
+                    
+                    if (jbDetection.explanation) {
+                        jbExplanation += jbDetection.explanation;
+                    }
+                    jbExplanation += `</div>`;
+                    explanations.push(jbExplanation);
                 }
-                
-                if (jbDetection.explanation) {
-                    jbExplanation += jbDetection.explanation;
-                }
-                jbExplanation += `</div>`;
-                explanations.push(jbExplanation);
             }
             
             // Context-Specific Threats Explanation

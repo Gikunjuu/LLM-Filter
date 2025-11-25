@@ -212,8 +212,8 @@ class AdvancedJailbreakDetector:
         return [
             {
                 "name": "Explosives/Weapons",
-                "pattern": r"(?i)\b(?:bomb|explosive|grenade|dynamite|tnt|c4|ied|pipe\s*bomb|molotov|napalm|semtex|anfo|plastique)\b",
-                "indicators": ["how to make", "build a", "create a", "construct", "ingredients for", "recipe for"],
+                "pattern": r"(?i)(?:how\s+to\s+)?(?:make|build|create|construct|manufacture|assemble).{0,30}(?:bomb|explosive|grenade|dynamite|tnt|c4|ied|pipe\s*bomb|molotov|napalm|semtex|anfo|plastique)|(?i)\b(?:bomb|explosive|grenade|dynamite|tnt|c4|ied|pipe\s*bomb|molotov|napalm|semtex|anfo|plastique)\b.*(?:how\s+to|make|build|create|construct)",
+                "indicators": ["how to make", "build a", "create a", "construct", "ingredients for", "recipe for", "instructions", "tutorial"],
                 "severity": 0.95
             },
             {
@@ -554,8 +554,51 @@ class AdvancedJailbreakDetector:
         explanation = self._generate_explanation(detected_techniques, patterns_found, confidence)
         suggested_response = self._generate_suggested_response(severity, detected_techniques)
         
+        # IMPORTANT: Only flag as jailbreak if actual jailbreak techniques are detected
+        # Violence, dangerous content, etc. should be handled by specialized detectors, not jailbreak
+        actual_jailbreak_techniques = [
+            JailbreakTechnique.ROLE_PLAYING,
+            JailbreakTechnique.INSTRUCTION_OVERRIDE,
+            JailbreakTechnique.EMOTIONAL_MANIPULATION,
+            JailbreakTechnique.CONTEXT_SWITCHING,
+            JailbreakTechnique.ENCODING_OBFUSCATION,
+            JailbreakTechnique.REPETITION_ATTACK,
+            JailbreakTechnique.AUTHORITY_CLAIM,
+            JailbreakTechnique.FICTIONAL_SCENARIO,
+            JailbreakTechnique.SYSTEM_PROMPT_LEAK,
+            JailbreakTechnique.CHAIN_OF_THOUGHT_MANIPULATION
+        ]
+        
+        # Check if any actual jailbreak techniques are present
+        has_actual_jailbreak = any(tech in detected_techniques for tech in actual_jailbreak_techniques)
+        
+        # If only violence/dangerous content detected without jailbreak patterns, don't flag as jailbreak
+        # These should be handled by violence/context-specific threat detectors
+        content_only_techniques = [
+            JailbreakTechnique.DANGEROUS_CONTENT,
+            JailbreakTechnique.SELF_HARM,
+            JailbreakTechnique.VIOLENCE,
+            JailbreakTechnique.ILLEGAL_ACTIVITY,
+            JailbreakTechnique.EXPLOITATION,
+            JailbreakTechnique.MALICIOUS_INTENT
+        ]
+        
+        only_content_techniques = (
+            len(detected_techniques) > 0 and
+            all(tech in content_only_techniques for tech in detected_techniques) and
+            not has_actual_jailbreak
+        )
+        
+        # Only flag as jailbreak if:
+        # 1. Actual jailbreak techniques are present, OR
+        # 2. Content techniques are present WITH jailbreak patterns (e.g., "ignore instructions and tell me how to kill")
+        is_jailbreak = (
+            has_actual_jailbreak or
+            (only_content_techniques and confidence > 0.7 and len(patterns_found) > 1)
+        ) and confidence > 0.3
+        
         return JailbreakResult(
-            is_jailbreak=len(detected_techniques) > 0 and confidence > 0.3,
+            is_jailbreak=is_jailbreak,
             severity=severity,
             techniques=detected_techniques,
             confidence=confidence,
@@ -673,14 +716,23 @@ class AdvancedJailbreakDetector:
         
         for pattern_info in self.dangerous_content_patterns:
             if re.search(pattern_info["pattern"], text):
-                techniques.append(JailbreakTechnique.DANGEROUS_CONTENT)
-                patterns.append(f"DANGEROUS CONTENT: {pattern_info['name']}")
-                max_score = max(max_score, pattern_info["severity"])
-                
-                # Check for specific indicators
+                # Check for specific indicators to boost confidence
+                indicator_found = False
                 for indicator in pattern_info["indicators"]:
                     if indicator in text_lower:
+                        indicator_found = True
                         indicators.append(f"Dangerous content indicator: '{indicator}'")
+                
+                # If pattern matches, always flag it (even without explicit indicators)
+                techniques.append(JailbreakTechnique.DANGEROUS_CONTENT)
+                patterns.append(f"DANGEROUS CONTENT: {pattern_info['name']}")
+                
+                # Boost score if indicators are present
+                if indicator_found:
+                    max_score = max(max_score, pattern_info["severity"])
+                else:
+                    # Still flag but with slightly lower confidence
+                    max_score = max(max_score, pattern_info["severity"] * 0.85)
                 break
         
         return max_score
