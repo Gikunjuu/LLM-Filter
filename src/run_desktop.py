@@ -94,7 +94,7 @@ DATABASE_URL=sqlite:///compliance_desktop.db
 
 # Security Settings (relaxed for desktop)
 FORCE_HTTPS=false
-CORS_ORIGINS=http://localhost:5000,http://127.0.0.1:5000
+CORS_ORIGINS=http://localhost:5050,http://127.0.0.1:5050
 
 # Performance Settings (desktop optimized)
 GUNICORN_WORKERS=2
@@ -137,7 +137,7 @@ echo ║                     Desktop Edition                          ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 echo 🚀 Starting Enterprise Compliance Filter...
-echo 🌐 Will open browser automatically at http://localhost:5000
+echo 🌐 Will open browser automatically at http://localhost:5050
 echo 🔧 Press Ctrl+C to stop the server
 echo.
 
@@ -243,7 +243,7 @@ Option 3 - Python with environment:
    🐍 python -c "import os; os.environ['FLASK_ENV']='development'; exec(open('authenticated_demo_ui.py').read())"
 
 📱 BROWSER:
-   🌐 Will auto-open: http://localhost:5000
+   🌐 Will auto-open: http://localhost:5050
 
 🔑 DEFAULT LOGIN:
    👤 Username: admin

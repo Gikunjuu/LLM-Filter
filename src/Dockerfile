@@ -49,7 +49,7 @@ ENV PYTHONUNBUFFERED=1 \
     PYTHONDONTWRITEBYTECODE=1 \
     PYTHONPATH=/app \
     FLASK_ENV=production \
-    PORT=5000
+    PORT=5050
 
 # Create non-root user
 RUN groupadd -r appuser && useradd -r -g appuser appuser

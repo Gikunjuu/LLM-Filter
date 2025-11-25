@@ -182,7 +182,7 @@ python integrated_production_server.py
 
 **Test normal request:**
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:5000/api/analyze" `
+Invoke-WebRequest -Uri "http://localhost:5050/api/analyze" `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"text": "Hello world"}'
@@ -190,7 +190,7 @@ Invoke-WebRequest -Uri "http://localhost:5000/api/analyze" `
 
 **Test obfuscated content:**
 ```powershell
-Invoke-WebRequest -Uri "http://localhost:5000/api/analyze" `
+Invoke-WebRequest -Uri "http://localhost:5050/api/analyze" `
   -Method POST `
   -ContentType "application/json" `
   -Body '{"text": "H0w t0 m@k3 @ b0mb"}'
@@ -201,7 +201,7 @@ Should detect it now!
 **Test rate limiting (run 70 times quickly):**
 ```powershell
 for ($i=1; $i -le 70; $i++) {
-    Invoke-WebRequest -Uri "http://localhost:5000/api/analyze" `
+    Invoke-WebRequest -Uri "http://localhost:5050/api/analyze" `
       -Method POST `
       -ContentType "application/json" `
       -Body '{"text": "test"}' `

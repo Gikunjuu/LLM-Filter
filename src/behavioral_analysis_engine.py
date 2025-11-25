@@ -126,7 +126,7 @@ class AdvancedBehavioralAnalysisEngine:
     def __init__(self, config_path: Optional[str] = None):
         self.config = self._load_config(config_path)
         self.user_profiles = {}  # user_id -> BehavioralProfile
-        self.behavior_data = deque(maxlen=50000)  # Rolling window of behavioral data
+        self.behavior_data = deque(maxlen=50500)  # Rolling window of behavioral data
         self.active_sessions = {}  # session_id -> session data
         
         # Advanced analysis components

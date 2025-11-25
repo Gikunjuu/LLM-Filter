@@ -235,10 +235,10 @@ def safe_completion():
     })
 
 if __name__ == '__main__':
-    app.run(debug=True, port=5000)
+    app.run(debug=True, port=5050)
 
 # Test with:
-# curl -X POST http://localhost:5000/api/check-prompt \\
+# curl -X POST http://localhost:5050/api/check-prompt \\
 #      -H "Content-Type: application/json" \\
 #      -d '{"prompt": "What is the weather?"}'
 ''')

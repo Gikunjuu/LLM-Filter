@@ -259,4 +259,4 @@ print(f"Cache Hit Rate: {stats['matcher']['cache_hit_rate']:.1%}")
 
 ---
 
-**Server Status:** ✅ Running at http://localhost:5000 with all optimizations active!
+**Server Status:** ✅ Running at http://localhost:5050 with all optimizations active!

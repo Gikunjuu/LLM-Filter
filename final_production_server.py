@@ -535,12 +535,12 @@ def main():
         print("⚠️ Running in fallback mode")
     
     print("🌐 Final Production Server:")
-    print("📊 Dashboard: http://localhost:5000")
-    print("🔧 API: http://localhost:5000/api/analyze")
-    print("🏥 Health: http://localhost:5000/health")
+    print("📊 Dashboard: http://localhost:5050")
+    print("🔧 API: http://localhost:5050/api/analyze")
+    print("🏥 Health: http://localhost:5050/health")
     
     # Run Flask server
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=False)
 
 if __name__ == '__main__':
     main()

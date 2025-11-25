@@ -251,7 +251,7 @@ performance:
   enable_monitoring: true
   max_workers: 8
   cache:
-    memory_size: 5000
+    memory_size: 5050
     redis_host: "your-redis-server.com"
     redis_port: 6379
 ```
@@ -293,7 +293,7 @@ def batch_check():
     } for r in results])
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', port=5000)
+    app.run(host='0.0.0.0', port=5050)
 ```
 
 ### 3. FastAPI Async Example

@@ -768,7 +768,7 @@ HTML_TEMPLATE = """
 
             // Start updating stats
             updateStats();
-            setInterval(updateStats, 5000);
+            setInterval(updateStats, 5050);
         }
 
         async function generateApiKey() {
@@ -930,7 +930,7 @@ HTML_TEMPLATE = """
             
             setTimeout(() => {
                 alert.remove();
-            }, 5000);
+            }, 5050);
         }
     </script>
 </body>
@@ -1254,7 +1254,7 @@ def main():
     import threading
     def open_browser():
         time.sleep(1.5)
-        webbrowser.open('http://localhost:5000')
+        webbrowser.open('http://localhost:5050')
     
     browser_thread = threading.Thread(target=open_browser)
     browser_thread.daemon = True
@@ -1263,7 +1263,7 @@ def main():
     print("\n" + "="*70)
     print("🔐 SECURE COMPLIANCE FILTER DEMO SERVER RUNNING")
     print("="*70)
-    print("🌐 URL: http://localhost:5000")
+    print("🌐 URL: http://localhost:5050")
     print("🔑 Authentication Features:")
     print("  • JWT tokens with refresh")
     print("  • Role-based access control")
@@ -1283,7 +1283,7 @@ def main():
         os.system("pip install PyJWT pyotp qrcode[pil] requests")
     
     # Run Flask app
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=False)
 
 if __name__ == '__main__':
     main()

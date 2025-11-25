@@ -198,7 +198,7 @@ performance:
   enable_monitoring: true
   
   cache:
-    memory_size: 5000  # Larger cache for production
+    memory_size: 5050  # Larger cache for production
     ttl: 7200  # Longer cache time
     redis_host: "redis.production.com"
     redis_port: 6379
@@ -302,7 +302,7 @@ filter = ComplianceFilter.create_standard()
 ```python
 # Production setup
 filter = ComplianceFilter.create_optimized(
-    cache_size=5000,  # Large cache for production
+    cache_size=5050,  # Large cache for production
     max_workers=8     # More workers for high throughput
 )
 ```

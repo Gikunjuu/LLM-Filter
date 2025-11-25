@@ -85,7 +85,7 @@ After starting the server, check:
    ✅ OpenAI moderation initialized (95-98% accuracy mode)
    ```
 
-2. **Web interface** (http://localhost:5000) should show:
+2. **Web interface** (http://localhost:5050) should show:
    - Badge: "95-98% Accuracy"
    - Badge: "🤖 OpenAI Enhanced"
    - Feature badge: "🤖 OpenAI Moderation"

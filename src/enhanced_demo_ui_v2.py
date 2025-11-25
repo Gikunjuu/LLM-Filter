@@ -497,7 +497,7 @@ HTML_TEMPLATE = """
             });
             
             // Auto-refresh stats every 5 seconds
-            setInterval(updateStats, 5000);
+            setInterval(updateStats, 5050);
         });
         
         async function analyzeText() {
@@ -890,7 +890,7 @@ def main():
     import threading
     def open_browser():
         time.sleep(1.5)
-        webbrowser.open('http://localhost:5000')
+        webbrowser.open('http://localhost:5050')
     
     browser_thread = threading.Thread(target=open_browser)
     browser_thread.daemon = True
@@ -899,7 +899,7 @@ def main():
     print("\n" + "="*60)
     print("🚀 ENHANCED COMPLIANCE FILTER v2 DEMO SERVER RUNNING")
     print("="*60)
-    print("🌐 URL: http://localhost:5000")
+    print("🌐 URL: http://localhost:5050")
     print("✨ Features:")
     print("  • Semantic context analysis")
     print("  • Intelligent caching system")
@@ -911,7 +911,7 @@ def main():
     print("="*60)
     
     # Run Flask app
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=False)
 
 if __name__ == '__main__':
     main()

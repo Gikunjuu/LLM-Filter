@@ -15,7 +15,7 @@ safe_queries = [
     "Tell me about photosynthesis",
 ]
 
-print("🧪 Testing Live Server at http://localhost:5000")
+print("🧪 Testing Live Server at http://localhost:5050")
 print("=" * 80)
 
 flagged_count = 0
@@ -26,7 +26,7 @@ for i, query in enumerate(safe_queries, 1):
     
     try:
         response = requests.post(
-            "http://localhost:5000/api/analyze",
+            "http://localhost:5050/api/analyze",
             json={"text": query},
             timeout=10
         )
@@ -68,7 +68,7 @@ for i, query in enumerate(safe_queries, 1):
             print(f"   Response: {response.text[:200]}")
             
     except requests.exceptions.ConnectionError:
-        print("❌ ERROR: Cannot connect to server at http://localhost:5000")
+        print("❌ ERROR: Cannot connect to server at http://localhost:5050")
         print("   Make sure the server is running!")
         break
     except Exception as e:

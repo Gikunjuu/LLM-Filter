@@ -77,7 +77,7 @@ docker-compose ps
 ```
 
 ### Production Stack Services
-- **app** - Main application (port 5000)
+- **app** - Main application (port 5050)
 - **db** - PostgreSQL database (port 5432)
 - **redis** - Redis cache (port 6379)
 - **nginx** - Reverse proxy (ports 80/443)
@@ -216,7 +216,7 @@ az container create \
   --name compliance-filter \
   --image your-registry/compliance-filter:latest \
   --dns-name-label compliance-filter \
-  --ports 5000
+  --ports 5050
 ```
 
 ### Azure Kubernetes Service (AKS)
@@ -423,8 +423,8 @@ docker-compose exec redis redis-cli ping
 #### Application Health
 ```bash
 # Check application health
-curl http://localhost:5000/health
-curl http://localhost:5000/ready
+curl http://localhost:5050/health
+curl http://localhost:5050/ready
 ```
 
 ### Logs

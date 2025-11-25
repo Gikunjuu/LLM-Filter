@@ -31,7 +31,7 @@ SIMPLE_TEMPLATE = '''
         <div class="info">
             <strong>Server Status:</strong> Running successfully<br>
             <strong>Host:</strong> 127.0.0.1<br>
-            <strong>Port:</strong> 5000<br>
+            <strong>Port:</strong> 5050<br>
             <strong>Time:</strong> <span id="current-time">Loading...</span>
         </div>
         
@@ -129,19 +129,19 @@ def health_check():
 
 if __name__ == '__main__':
     print("🧪 Starting Test Server...")
-    print("📍 Open your browser to: http://127.0.0.1:5000")
-    print("📍 Alternative URL: http://localhost:5000")
+    print("📍 Open your browser to: http://127.0.0.1:5050")
+    print("📍 Alternative URL: http://localhost:5050")
     print("🛑 Press Ctrl+C to stop")
     print()
     
     try:
-        app.run(host='127.0.0.1', port=5000, debug=False)
+        app.run(host='127.0.0.1', port=5050, debug=False)
     except Exception as e:
         print(f"❌ Server error: {e}")
-        print("🔧 Trying alternative port 5001...")
+        print("🔧 Trying alternative port 5050...")
         try:
-            print("📍 Alternative URL: http://127.0.0.1:5001")
-            app.run(host='127.0.0.1', port=5001, debug=False)
+            print("📍 Alternative URL: http://127.0.0.1:5050")
+            app.run(host='127.0.0.1', port=5050, debug=False)
         except Exception as e2:
             print(f"❌ Alternative port also failed: {e2}")
             print("💡 Try running: pip install Flask")

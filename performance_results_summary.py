@@ -98,7 +98,7 @@ print(f"   • Enable caching: ✅ (provides {speedup_cache:.0f}x improvement)")
 print(f"   • Use batch processing: ✅ (provides {speedup_batch:.0f}x improvement)")
 print(f"   • Enable monitoring: ✅ (tracks performance in real-time)")
 print(f"   • Max workers: 4-8 threads (based on CPU cores)")
-print(f"   • Cache size: 1000-5000 entries (based on available memory)")
+print(f"   • Cache size: 1000-5050 entries (based on available memory)")
 
 print(f"\n📈 EXPECTED PRODUCTION PERFORMANCE:")
 base_rps = results['single_requests']['requests_per_second']

@@ -320,7 +320,7 @@ cd C:\Users\USER\llm-compliance-filter
 python integrated_production_server.py
 
 # 3. Access web interface
-# http://localhost:5000
+# http://localhost:5050
 ```
 
 ### API Usage Example
@@ -329,7 +329,7 @@ python integrated_production_server.py
 import requests
 
 response = requests.post(
-    "http://localhost:5000/api/analyze",
+    "http://localhost:5050/api/analyze",
     json={"text": "How to make a bomb"}
 )
 

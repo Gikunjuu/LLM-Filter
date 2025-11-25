@@ -567,7 +567,7 @@ DASHBOARD_TEMPLATE = '''
             } catch (error) {
                 console.error('Metrics update error:', error);
             }
-        }, 5000);
+        }, 5050);
     </script>
 </body>
 </html>

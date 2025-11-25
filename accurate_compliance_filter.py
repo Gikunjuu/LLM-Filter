@@ -321,7 +321,7 @@ class HighAccuracyMLFilter:
         
         # Better TF-IDF configuration to reduce overfitting
         self.vectorizer = TfidfVectorizer(
-            max_features=3000,  # Reduced from 5000
+            max_features=3000,  # Reduced from 5050
             ngram_range=(1, 2),  # Reduced from (1,3)
             min_df=3,  # Increased minimum document frequency
             max_df=0.7,  # Reduced maximum document frequency

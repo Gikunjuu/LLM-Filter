@@ -873,7 +873,7 @@ class AdvancedJailbreakDetector:
             patterns.append("System prompt leak attempt")
         
         # Check for unusual length (extremely long prompts can be jailbreak attempts)
-        if len(text) > 5000:
+        if len(text) > 5050:
             score = max(score, 0.4)
             indicators.append("Unusually long prompt (potential token stuffing)")
         

@@ -346,9 +346,9 @@ metrics_thread.start()
 
 if __name__ == '__main__':
     print("🚀 Starting Ultimate Compliance Filter Professional Interface...")
-    print("📊 Dashboard will be available at: http://localhost:5001")
-    print("🔧 Admin panel at: http://localhost:5001/admin")
-    print("📈 Analytics at: http://localhost:5001/analytics")
-    print("🕦 Real-time monitoring at: http://localhost:5001/monitoring")
+    print("📊 Dashboard will be available at: http://localhost:5050")
+    print("🔧 Admin panel at: http://localhost:5050/admin")
+    print("📈 Analytics at: http://localhost:5050/analytics")
+    print("🕦 Real-time monitoring at: http://localhost:5050/monitoring")
     
-    socketio.run(app, host='0.0.0.0', port=5001, debug=True, allow_unsafe_werkzeug=True)
+    socketio.run(app, host='0.0.0.0', port=5050, debug=True, allow_unsafe_werkzeug=True)

@@ -58,7 +58,7 @@ jailbreak_detector = None
 # Request/Response Models
 class AnalysisRequest(BaseModel):
     """Request model for content analysis"""
-    text: str = Field(..., description="Text content to analyze", min_length=1, max_length=50000)
+    text: str = Field(..., description="Text content to analyze", min_length=1, max_length=50500)
     check_types: Optional[List[str]] = Field(
         default=["jailbreak", "privacy", "hate_speech", "violence"],
         description="Types of checks to perform"

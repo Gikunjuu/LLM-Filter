@@ -363,12 +363,12 @@ def main():
     else:
         print("⚠️ Running in fallback mode")
     
-    print("🌐 Server starting on http://localhost:5000")
-    print("📊 Dashboard: http://localhost:5000")
-    print("🔧 API: http://localhost:5000/api/analyze")
+    print("🌐 Server starting on http://localhost:5050")
+    print("📊 Dashboard: http://localhost:5050")
+    print("🔧 API: http://localhost:5050/api/analyze")
     
     # Run with Flask development server (simpler than Waitress)
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=False)
 
 if __name__ == '__main__':
     main()

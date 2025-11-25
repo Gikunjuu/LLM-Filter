@@ -4,7 +4,7 @@
 
 The LLM Compliance Filter is now **fully deployed and running** with all high-priority improvements and critical fixes applied.
 
-**Server URL**: `http://localhost:5000`  
+**Server URL**: `http://localhost:5050`  
 **Status**: ✅ **PRODUCTION READY**
 
 ---
@@ -309,7 +309,7 @@ While production-ready now, these could further improve:
 
 ## 📞 System Access
 
-**Production Server**: `http://localhost:5000`
+**Production Server**: `http://localhost:5050`
 
 **Key Endpoints**:
 - `/` - Web interface

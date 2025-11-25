@@ -116,7 +116,7 @@ deploy_ecs() {
             "image": "$IMAGE_URI",
             "portMappings": [
                 {
-                    "containerPort": 5000,
+                    "containerPort": 5050,
                     "protocol": "tcp"
                 }
             ],
@@ -190,12 +190,12 @@ deploy_eb() {
     },
     "Ports": [
         {
-            "ContainerPort": "5000"
+            "ContainerPort": "5050"
         }
     ],
     "Environment": [
         {"Name": "FLASK_ENV", "Value": "production"},
-        {"Name": "PORT", "Value": "5000"}
+        {"Name": "PORT", "Value": "5050"}
     ]
 }
 EOF
@@ -249,7 +249,7 @@ spec:
       - name: $APP_NAME
         image: $IMAGE_URI
         ports:
-        - containerPort: 5000
+        - containerPort: 5050
         env:
         - name: FLASK_ENV
           value: "production"
@@ -266,13 +266,13 @@ spec:
         livenessProbe:
           httpGet:
             path: /health
-            port: 5000
+            port: 5050
           initialDelaySeconds: 30
           periodSeconds: 10
         readinessProbe:
           httpGet:
             path: /ready
-            port: 5000
+            port: 5050
           initialDelaySeconds: 5
           periodSeconds: 5
         resources:
@@ -296,7 +296,7 @@ spec:
   ports:
   - protocol: TCP
     port: 80
-    targetPort: 5000
+    targetPort: 5050
   type: LoadBalancer
 EOF
     

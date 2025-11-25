@@ -327,7 +327,7 @@ HTML_PAGE = '''<!DOCTYPE html>
         }
         
         // Auto-update stats every 5 seconds
-        setInterval(updateStats, 5000);
+        setInterval(updateStats, 5050);
         
         // Initial stats load
         updateStats();
@@ -438,14 +438,14 @@ def check_compliance_simple(text):
     except Exception as e:
         return {'error': f'Processing error: {str(e)}'}
 
-def run_server(port=5000):
+def run_server(port=5050):
     """Run the HTTP server"""
     server_address = ('127.0.0.1', port)
     
     try:
         httpd = HTTPServer(server_address, ComplianceHandler)
         print(f"✅ Server starting on http://127.0.0.1:{port}")
-        print("🌐 Open your browser to http://127.0.0.1:5000")
+        print("🌐 Open your browser to http://127.0.0.1:5050")
         print("🛑 Press Ctrl+C to stop the server")
         print()
         httpd.serve_forever()

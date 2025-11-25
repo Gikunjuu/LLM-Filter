@@ -454,13 +454,13 @@ def main():
     print("🛡️ Starting Ultra-Conservative Compliance Filter Server...")
     print("✅ Conservative filter initialized - zero false positives priority")
     print("🌐 Ultra-Conservative Server:")
-    print("📊 Dashboard: http://localhost:5000")
-    print("🔧 API: http://localhost:5000/api/analyze")
-    print("🏥 Health: http://localhost:5000/health")
+    print("📊 Dashboard: http://localhost:5050")
+    print("🔧 API: http://localhost:5050/api/analyze")
+    print("🏥 Health: http://localhost:5050/health")
     print("🎯 Focus: Only flag CLEAR, UNAMBIGUOUS violations")
     
     # Run Flask server
-    app.run(host='0.0.0.0', port=5000, debug=False)
+    app.run(host='0.0.0.0', port=5050, debug=False)
 
 if __name__ == '__main__':
     main()

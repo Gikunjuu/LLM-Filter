@@ -41,7 +41,7 @@ python authenticated_demo_ui.py
 ```
 
 ### 3. Access the Interface
-Open your browser to: **http://localhost:5000**
+Open your browser to: **http://localhost:5050**
 
 The browser should open automatically.
 
@@ -126,35 +126,35 @@ To enable OAuth login:
 1. **Google OAuth**:
    - Go to [Google Cloud Console](https://console.cloud.google.com/)
    - Create OAuth 2.0 credentials
-   - Add `http://localhost:5000/auth/oauth/google/callback` to authorized redirects
+   - Add `http://localhost:5050/auth/oauth/google/callback` to authorized redirects
 
 2. **GitHub OAuth**:
    - Go to GitHub Settings → Developer settings → OAuth Apps
    - Create new OAuth app
-   - Set callback URL: `http://localhost:5000/auth/oauth/github/callback`
+   - Set callback URL: `http://localhost:5050/auth/oauth/github/callback`
 
 3. **Microsoft OAuth**:
    - Go to [Azure Portal](https://portal.azure.com/)
    - Register new application
-   - Add redirect URI: `http://localhost:5000/auth/oauth/microsoft/callback`
+   - Add redirect URI: `http://localhost:5050/auth/oauth/microsoft/callback`
 
 ## 🛠️ API Usage
 
 ### Authentication
 ```bash
 # Login
-curl -X POST http://localhost:5000/auth/login \
+curl -X POST http://localhost:5050/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "CompliantFilter2025!"}'
 
 # Use JWT token
-curl -X POST http://localhost:5000/analyze \
+curl -X POST http://localhost:5050/analyze \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"text": "Your content to analyze"}'
 
 # Use API key
-curl -X POST http://localhost:5000/analyze \
+curl -X POST http://localhost:5050/analyze \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"text": "Your content to analyze"}'
@@ -238,7 +238,7 @@ pip install flask PyJWT pyotp qrcode[pil] requests
 **Port Already in Use**:
 ```bash
 # Change port in authenticated_demo_ui.py
-app.run(host='0.0.0.0', port=5001, debug=False)
+app.run(host='0.0.0.0', port=5050, debug=False)
 ```
 
 **MFA QR Code Not Showing**:

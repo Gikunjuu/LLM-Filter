@@ -7,7 +7,7 @@ echo ║                     Desktop Edition                          ║
 echo ╚══════════════════════════════════════════════════════════════╝
 echo.
 echo 🚀 Starting Enterprise Compliance Filter...
-echo 🌐 Will open browser automatically at http://localhost:5000
+echo 🌐 Will open browser automatically at http://localhost:5050
 echo 🔧 Press Ctrl+C to stop the server
 echo.
 

@@ -15,7 +15,7 @@ Commands (run from repo root)
 - Run (local dev)
   - python src/run_secure_demo.py
   - or: python src/wsgi.py  (exercise the WSGI entrypoint without Gunicorn)
-  - or (Windows production-style from src): waitress-serve --listen=127.0.0.1:5000 wsgi:application
+  - or (Windows production-style from src): waitress-serve --listen=127.0.0.1:5050 wsgi:application
 
 - Tests (these are standalone scripts; no pytest suite in this repo)
   - Full accuracy suite: python src/test_accuracy.py
@@ -29,7 +29,7 @@ Commands (run from repo root)
 
 - Docker
   - Build: docker build -t compliance-filter ./src
-  - Run:   docker run -p 5000:5000 compliance-filter
+  - Run:   docker run -p 5050:5050 compliance-filter
   - Compose stack: docker-compose -f src/docker-compose.yml up -d
 
 Notes on optional detectors

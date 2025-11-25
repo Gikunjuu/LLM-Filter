@@ -9,7 +9,7 @@ Usage:
     pip install flask
     python web_api_example.py
     
-Then visit: http://localhost:5000
+Then visit: http://localhost:5050
 """
 
 import sys
@@ -305,18 +305,18 @@ def main():
     
     try:
         print("\n🌟 Server starting...")
-        print("📱 Web Interface: http://localhost:5000")
-        print("🔧 API Endpoint: http://localhost:5000/api/check")
-        print("📊 Health Check: http://localhost:5000/api/health")
+        print("📱 Web Interface: http://localhost:5050")
+        print("🔧 API Endpoint: http://localhost:5050/api/check")
+        print("📊 Health Check: http://localhost:5050/api/health")
         print("\n💡 Example API calls:")
-        print('curl -X POST http://localhost:5000/api/check -H "Content-Type: application/json" -d \'{"text":"Hello, my email is test@example.com"}\'')
+        print('curl -X POST http://localhost:5050/api/check -H "Content-Type: application/json" -d \'{"text":"Hello, my email is test@example.com"}\'')
         print("\n🛑 Press Ctrl+C to stop the server")
         print("=" * 60)
         
         # Run the Flask app
         app.run(
             host='0.0.0.0',  # Allow external connections
-            port=5000,
+            port=5050,
             debug=False,  # Disable debug mode for better performance
             threaded=True  # Enable threading for better concurrency
         )

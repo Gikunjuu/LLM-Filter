@@ -147,7 +147,7 @@ class ProductionConfig:
         """Get Gunicorn configuration for production"""
         workers = int(os.environ.get('GUNICORN_WORKERS', 4))
         return {
-            'bind': f"0.0.0.0:{os.environ.get('PORT', 5000)}",
+            'bind': f"0.0.0.0:{os.environ.get('PORT', 5050)}",
             'workers': workers,
             'worker_class': 'gevent',
             'worker_connections': 1000,

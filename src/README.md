@@ -69,7 +69,7 @@ This system achieves **100% accuracy** through:
    ```
 
 4. **Access the interface**:
-   Open your browser to: **http://localhost:5000**
+   Open your browser to: **http://localhost:5050**
 
 ### Default Credentials
 - **Username**: `admin`
@@ -111,18 +111,18 @@ This system achieves **100% accuracy** through:
 ### Authentication
 ```bash
 # Login
-curl -X POST http://localhost:5000/auth/login \
+curl -X POST http://localhost:5050/auth/login \
   -H "Content-Type: application/json" \
   -d '{"username": "admin", "password": "CompliantFilter2025!"}'
 
 # Use JWT token
-curl -X POST http://localhost:5000/analyze \
+curl -X POST http://localhost:5050/analyze \
   -H "Authorization: Bearer YOUR_ACCESS_TOKEN" \
   -H "Content-Type: application/json" \
   -d '{"text": "Content to analyze"}'
 
 # Use API key
-curl -X POST http://localhost:5000/analyze \
+curl -X POST http://localhost:5050/analyze \
   -H "X-API-Key: YOUR_API_KEY" \
   -H "Content-Type: application/json" \
   -d '{"text": "Content to analyze"}'
@@ -202,7 +202,7 @@ GITHUB_CLIENT_SECRET=your-github-secret
 ```bash
 # Build and run with Docker
 docker build -t compliance-filter .
-docker run -p 5000:5000 compliance-filter
+docker run -p 5050:5050 compliance-filter
 
 # Or use Docker Compose
 docker-compose up -d

@@ -215,4 +215,4 @@ except Exception as e:
 if __name__ == "__main__":
     # For development testing - use gunicorn for production
     print("⚠️ Running in development mode. Use Gunicorn for production!")
-    application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5000)))
+    application.run(host='0.0.0.0', port=int(os.environ.get('PORT', 5050)))

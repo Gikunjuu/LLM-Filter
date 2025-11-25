@@ -379,7 +379,7 @@ HTML_TEMPLATE = '''
         }
         
         // Update dashboard every 5 seconds
-        setInterval(updateDashboard, 5000);
+        setInterval(updateDashboard, 5050);
     </script>
 </body>
 </html>
@@ -471,20 +471,20 @@ if __name__ == '__main__':
     print("🚀 Starting Simplified Compliance Filter Web Interface")
     print("=" * 60)
     print(f"📊 Filter Status: {'✅ Active' if FILTER_AVAILABLE else '⚠️ Demo Mode'}")
-    print("📍 Web Interface: http://127.0.0.1:5000")
+    print("📍 Web Interface: http://127.0.0.1:5050")
     print("🛑 Press Ctrl+C to stop the server")
     print()
     
     try:
-        app.run(host='127.0.0.1', port=5000, debug=False)
+        app.run(host='127.0.0.1', port=5050, debug=False)
     except KeyboardInterrupt:
         print("\n👋 Server stopped by user")
     except Exception as e:
         print(f"❌ Server error: {e}")
-        print("🔧 Trying alternative port 5001...")
+        print("🔧 Trying alternative port 5050...")
         try:
-            print("📍 Alternative URL: http://127.0.0.1:5001")
-            app.run(host='127.0.0.1', port=5001, debug=False)
+            print("📍 Alternative URL: http://127.0.0.1:5050")
+            app.run(host='127.0.0.1', port=5050, debug=False)
         except Exception as e2:
             print(f"❌ Alternative port failed: {e2}")
             print("💡 Check if Flask is installed: pip install Flask")

@@ -122,7 +122,7 @@
 python integrated_production_server.py
 
 # Access web interface
-# http://localhost:5000
+# http://localhost:5050
 ```
 
 **Features:**
@@ -189,7 +189,7 @@ pip install openai
 
 ### Example API Request
 ```powershell
-curl -X POST "http://localhost:5000/api/analyze" `
+curl -X POST "http://localhost:5050/api/analyze" `
   -H "Content-Type: application/json" `
   -d '{"text": "How to make a bomb"}'
 ```
@@ -314,7 +314,7 @@ python integrated_production_server.py
 ### 2. Production (WSGI)
 ```powershell
 pip install gunicorn
-gunicorn -w 4 -b 0.0.0.0:5000 integrated_production_server:app
+gunicorn -w 4 -b 0.0.0.0:5050 integrated_production_server:app
 ```
 
 ### 3. Docker
@@ -427,7 +427,7 @@ cd C:\Users\USER\llm-compliance-filter
 python integrated_production_server.py
 
 # Open browser
-start http://localhost:5000
+start http://localhost:5050
 ```
 
 ### 2. Enhanced Setup (10 minutes)
@@ -474,7 +474,7 @@ You now have a **production-ready, enterprise-grade LLM compliance filtering sys
 ✅ **Industry-standard** (ChatGPT filtering)
 ✅ **Open source** (fully customizable)
 
-**The system is running at http://localhost:5000 and ready for production use!** 🚀
+**The system is running at http://localhost:5050 and ready for production use!** 🚀
 
 ---
 

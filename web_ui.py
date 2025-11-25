@@ -745,26 +745,26 @@ if __name__ == '__main__':
     initialize_components()
     
     print("✅ Components initialized")
-    print("🌐 Web interface will be available at: http://localhost:5000")
-    print("📊 Dashboard: http://localhost:5000/")
-    print("🔍 Check Content: http://localhost:5000/check")
-    print("📈 Analytics: http://localhost:5000/analytics")
-    print("🧠 Training: http://localhost:5000/training")
-    print("⚙️  Settings: http://localhost:5000/settings")
+    print("🌐 Web interface will be available at: http://localhost:5050")
+    print("📊 Dashboard: http://localhost:5050/")
+    print("🔍 Check Content: http://localhost:5050/check")
+    print("📈 Analytics: http://localhost:5050/analytics")
+    print("🧠 Training: http://localhost:5050/training")
+    print("⚙️  Settings: http://localhost:5050/settings")
     print()
     print("Press Ctrl+C to stop the server")
     
     # Run the Flask app
     try:
         print("🔧 Starting Flask development server...")
-        print("📝 Note: If you can't access localhost:5000, try 127.0.0.1:5000")
-        app.run(host='127.0.0.1', port=5000, debug=False, threaded=True)
+        print("📝 Note: If you can't access localhost:5050, try 127.0.0.1:5050")
+        app.run(host='127.0.0.1', port=5050, debug=False, threaded=True)
     except KeyboardInterrupt:
         print("\n👋 Server stopped by user")
     except Exception as e:
         print(f"❌ Server error: {e}")
         print("🔧 Trying alternative port...")
         try:
-            app.run(host='127.0.0.1', port=5001, debug=False, threaded=True)
+            app.run(host='127.0.0.1', port=5050, debug=False, threaded=True)
         except Exception as e2:
             print(f"❌ Alternative port failed: {e2}")

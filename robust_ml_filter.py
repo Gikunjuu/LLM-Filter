@@ -358,7 +358,7 @@ class RobustMLComplianceFilter:
         
         self.text_processor = AdvancedTextProcessor()
         self.vectorizer = TfidfVectorizer(
-            max_features=5000, 
+            max_features=5050, 
             ngram_range=(1, 3),
             min_df=2,
             max_df=0.8

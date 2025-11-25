@@ -56,7 +56,7 @@ pip install -r requirements.txt
 python integrated_production_server.py
 ```
 
-Visit `http://localhost:5000` to access the web interface.
+Visit `http://localhost:5050` to access the web interface.
 
 ## 📖 Documentation
 

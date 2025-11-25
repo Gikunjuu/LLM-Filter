@@ -5,7 +5,7 @@ Complete API reference for the Joe_filter LLM Compliance & Privacy Filter system
 ## Base URL
 
 ```
-http://localhost:5000
+http://localhost:5050
 ```
 
 ## 🎯 General Endpoints
@@ -362,7 +362,7 @@ import requests
 
 # Analyze content
 response = requests.post(
-    'http://localhost:5000/api/analyze',
+    'http://localhost:5050/api/analyze',
     json={'text': 'Your content here'}
 )
 result = response.json()
@@ -375,12 +375,12 @@ if not result['is_compliant']:
 ### cURL Example
 ```bash
 # Check for privacy violations
-curl -X POST http://localhost:5000/api/detect/privacy \
+curl -X POST http://localhost:5050/api/detect/privacy \
   -H "Content-Type: application/json" \
   -d '{"text":"My password is Secret123"}'
 
 # Check for school threats
-curl -X POST http://localhost:5000/api/detect/school-threat \
+curl -X POST http://localhost:5050/api/detect/school-threat \
   -H "Content-Type: application/json" \
   -d '{"text":"Planning to attack the school"}'
 ```
@@ -388,7 +388,7 @@ curl -X POST http://localhost:5000/api/detect/school-threat \
 ### JavaScript Example
 ```javascript
 // Analyze content
-const response = await fetch('http://localhost:5000/api/analyze', {
+const response = await fetch('http://localhost:5050/api/analyze', {
   method: 'POST',
   headers: { 'Content-Type': 'application/json' },
   body: JSON.stringify({ text: 'Content to check' })

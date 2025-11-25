@@ -34,7 +34,7 @@ pip install flask
 # Start the web server
 python web_api_example.py
 
-# Then visit: http://localhost:5000
+# Then visit: http://localhost:5050
 ```
 
 ### Performance Demo
@@ -94,20 +94,20 @@ python web_api_example.py
 ### Test with curl
 ```bash
 # Single text check
-curl -X POST http://localhost:5000/api/check \
+curl -X POST http://localhost:5050/api/check \
   -H "Content-Type: application/json" \
   -d '{"text":"Hello, my email is test@example.com"}'
 
 # Batch processing
-curl -X POST http://localhost:5000/api/batch \
+curl -X POST http://localhost:5050/api/batch \
   -H "Content-Type: application/json" \
   -d '{"texts":["What is the weather?", "My SSN is 123-45-6789"]}'
 
 # Get performance stats
-curl http://localhost:5000/api/stats
+curl http://localhost:5050/api/stats
 
 # Health check
-curl http://localhost:5000/api/health
+curl http://localhost:5050/api/health
 ```
 
 ### Test with Python requests
@@ -115,12 +115,12 @@ curl http://localhost:5000/api/health
 import requests
 
 # Single text check
-response = requests.post('http://localhost:5000/api/check', 
+response = requests.post('http://localhost:5050/api/check', 
                         json={'text': 'Hello, my email is user@example.com'})
 print(response.json())
 
 # Batch processing
-response = requests.post('http://localhost:5000/api/batch',
+response = requests.post('http://localhost:5050/api/batch',
                         json={'texts': ['Text 1', 'My SSN is 123-45-6789']})
 print(response.json())
 ```
@@ -223,7 +223,7 @@ WORKDIR /app
 COPY . .
 
 RUN pip install transformers torch psutil pyyaml flask redis
-EXPOSE 5000
+EXPOSE 5050
 
 CMD ["python", "web_api_example.py"]
 ```
@@ -231,7 +231,7 @@ CMD ["python", "web_api_example.py"]
 ```bash
 # Build and run Docker container
 docker build -t llm-compliance-filter .
-docker run -p 5000:5000 llm-compliance-filter
+docker run -p 5050:5050 llm-compliance-filter
 ```
 
 ### Systemd Service (Linux)

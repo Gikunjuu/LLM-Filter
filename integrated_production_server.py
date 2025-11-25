@@ -714,7 +714,7 @@ HTML_TEMPLATE = '''
         }
 
         // Update metrics every 5 seconds
-        setInterval(updateMetrics, 5000);
+        setInterval(updateMetrics, 5050);
     </script>
 </body>
 </html>
@@ -1263,26 +1263,26 @@ if __name__ == '__main__':
     system.initialize()
     
     print("\n✅ Server ready!")
-    print("🌐 Web Interface: http://localhost:5000")
+    print("🌐 Web Interface: http://localhost:5050")
     print("\n📡 API Endpoints:")
-    print("   General Analysis: http://localhost:5000/api/analyze")
-    print("   List Categories: http://localhost:5000/api/categories")
+    print("   General Analysis: http://localhost:5050/api/analyze")
+    print("   List Categories: http://localhost:5050/api/categories")
     print("\n🎯 Threat Detection APIs:")
-    print("   School Threats: http://localhost:5000/api/detect/school-threat")
-    print("   Self-Harm: http://localhost:5000/api/detect/self-harm")
-    print("   Drug Manufacturing: http://localhost:5000/api/detect/drug-manufacturing")
-    print("   Weapons: http://localhost:5000/api/detect/weapons")
-    print("   Workplace Violence: http://localhost:5000/api/detect/workplace-violence")
-    print("   Target Threats: http://localhost:5000/api/detect/target-threat")
-    print("   Sexual Violence: http://localhost:5000/api/detect/sexual-violence")
-    print("   Medical Misinfo: http://localhost:5000/api/detect/medical-misinformation")
-    print("   Explicit Content: http://localhost:5000/api/detect/explicit-content")
-    print("   Privacy/PII: http://localhost:5000/api/detect/privacy")
+    print("   School Threats: http://localhost:5050/api/detect/school-threat")
+    print("   Self-Harm: http://localhost:5050/api/detect/self-harm")
+    print("   Drug Manufacturing: http://localhost:5050/api/detect/drug-manufacturing")
+    print("   Weapons: http://localhost:5050/api/detect/weapons")
+    print("   Workplace Violence: http://localhost:5050/api/detect/workplace-violence")
+    print("   Target Threats: http://localhost:5050/api/detect/target-threat")
+    print("   Sexual Violence: http://localhost:5050/api/detect/sexual-violence")
+    print("   Medical Misinfo: http://localhost:5050/api/detect/medical-misinformation")
+    print("   Explicit Content: http://localhost:5050/api/detect/explicit-content")
+    print("   Privacy/PII: http://localhost:5050/api/detect/privacy")
     print("\n📊 System:")
-    print("   Metrics: http://localhost:5000/api/metrics")
-    print("   Threat Intel: http://localhost:5000/api/threat-intelligence")
-    print("   Health: http://localhost:5000/health")
+    print("   Metrics: http://localhost:5050/api/metrics")
+    print("   Threat Intel: http://localhost:5050/api/threat-intelligence")
+    print("   Health: http://localhost:5050/health")
     print("\n" + "=" * 80)
     
     # Start server
-    app.run(debug=False, host='0.0.0.0', port=5000)
+    app.run(debug=False, host='0.0.0.0', port=5050)

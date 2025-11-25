@@ -573,7 +573,7 @@ HTML_CONTENT = '''<!DOCTYPE html>
         }
         
         // Auto-update stats every 5 seconds
-        setInterval(updateStats, 5000);
+        setInterval(updateStats, 5050);
         
         // Initial load
         updateStats();
@@ -811,7 +811,7 @@ def open_browser(url, delay=3):
         print(f"⚠️ Could not auto-open browser: {e}")
         print(f"📍 Please manually open: {url}")
 
-def run_enhanced_demo_server(port=5000):
+def run_enhanced_demo_server(port=5050):
     """Run the enhanced demo server"""
     server_address = ('127.0.0.1', port)
     

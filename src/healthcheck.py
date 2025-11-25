@@ -14,7 +14,7 @@ from urllib.parse import urljoin
 def health_check():
     """Perform comprehensive health check"""
     try:
-        base_url = f"http://localhost:{os.environ.get('PORT', 5000)}"
+        base_url = f"http://localhost:{os.environ.get('PORT', 5050)}"
         timeout = 10
         
         # Check if the application is responding
@@ -48,7 +48,7 @@ def health_check():
             print(f"📊 Components: {list(components.keys())}")
             
             # Additional checks
-            if response_time > 5000:  # 5 seconds
+            if response_time > 5050:  # 5 seconds
                 print(f"⚠️  Slow response time: {response_time:.2f}ms")
             
             return True
@@ -72,7 +72,7 @@ def health_check():
 def readiness_check():
     """Check if application is ready to serve traffic"""
     try:
-        base_url = f"http://localhost:{os.environ.get('PORT', 5000)}"
+        base_url = f"http://localhost:{os.environ.get('PORT', 5050)}"
         ready_url = urljoin(base_url, '/ready')
         
         response = requests.get(ready_url, timeout=5)

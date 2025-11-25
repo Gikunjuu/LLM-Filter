@@ -367,7 +367,7 @@ DASHBOARD_TEMPLATE = '''
             } catch (error) {
                 console.error('Metrics update error:', error);
             }
-        }, 5000);
+        }, 5050);
     </script>
 </body>
 </html>
@@ -495,14 +495,14 @@ def main():
     else:
         print("⚠️ System initialization incomplete - running in limited mode")
     
-    print("📊 Dashboard available at: http://localhost:5000")
-    print("🔧 API endpoint: http://localhost:5000/api/analyze")
-    print("📈 Metrics endpoint: http://localhost:5000/api/metrics")
+    print("📊 Dashboard available at: http://localhost:5050")
+    print("🔧 API endpoint: http://localhost:5050/api/analyze")
+    print("📈 Metrics endpoint: http://localhost:5050/api/metrics")
     
     # Run the Flask app
     socketio.run(app, 
                 host='0.0.0.0', 
-                port=5000, 
+                port=5050, 
                 debug=False,
                 allow_unsafe_werkzeug=True)
 
