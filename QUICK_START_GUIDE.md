@@ -334,7 +334,7 @@ async def batch_check(request: BatchRequest):
         "reasoning": r.reasoning
     } for r in results]
 
-# Run with: uvicorn main:app --host 0.0.0.0 --port 8000
+# Run with: uvicorn main:app --host 0.0.0.0 --port 5050
 ```
 
 ## 📊 Performance Monitoring
